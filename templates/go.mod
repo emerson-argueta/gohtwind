@@ -1,0 +1,1 @@
+module {{PROJECT_NAME}}

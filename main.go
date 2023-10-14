@@ -15,21 +15,17 @@ var templates embed.FS
 func main() {
 	// Command-line arguments
 	projectName := flag.String("name", "", "Name of the project to be generated")
+	featureName := flag.String("gen-feature", "", "Generate a new feature")
 	flag.Parse()
 
 	if *projectName != "" {
 		generateProject(projectName)
-		return
-	}
-
-	featureName := flag.String("gen-feature", "", "Generate a new feature")
-	flag.Parse()
-
-	if *featureName != "" {
+	} else if *featureName != "" {
 		generateFeature(featureName)
-		return
+	} else {
+		fmt.Println("Usage: gohtwind [-name project-name] [-gen-feature feature-name]")
+		os.Exit(1)
 	}
-
 }
 
 func generateProject(projectName *string) {
@@ -43,6 +39,7 @@ func generateProject(projectName *string) {
 	})
 
 	// Copy and replace placeholders in templates
+	copyProjTemplate("go.mod", "go.mod", *projectName)
 	copyProjTemplate("main.go", "main.go", *projectName)
 	copyProjTemplate("package.json", "frontend/package.json", *projectName)
 	copyProjTemplate("postcss.config.js", "frontend/postcss.config.js", *projectName)
@@ -52,9 +49,8 @@ func generateProject(projectName *string) {
 	copyProjTemplate("dev-setup-macos.sh", "dev-setup-macos.sh", *projectName)
 	copyProjTemplate("dev-setup-windows.sh", "dev-setup-macos.sh", *projectName)
 	copyProjTemplate("Dockerfile.prod", "Dockerfile.prod", *projectName)
-	copyProjTemplate("gen-feature.sh", "gen-feature.sh", *projectName)
 	copyProjTemplate(".gitignore", ".gitignore", *projectName)
-	copyProjTemplate(".example.env", ".example.env", *projectName)
+	copyProjTemplate("example.env", "example.env", *projectName)
 	copyProjTemplate(".air.toml", ".air.toml", *projectName)
 
 	fmt.Printf("Project '%s' has been generated!\n", *projectName)
@@ -79,7 +75,7 @@ func generateFeature(featureName *string) {
 	copyFeatureTemplate("delete.html", "templates/delete.html", *featureName)
 	copyFeatureTemplate("list.html", "templates/list.html", *featureName)
 
-	fmt.Printf("Feature '%s' has been generated!\n", featureName)
+	fmt.Printf("Feature '%s' has been generated!\n", *featureName)
 	fmt.Printf("Add the following to the main.go file:\n")
 	fmt.Printf("import \"%s\"\n", *featureName)
 	fmt.Printf("%s.SetupRoutes()\n", *featureName)
@@ -98,7 +94,7 @@ func copyProjTemplate(src, dest, projectName string) {
 }
 
 func copyFeatureTemplate(src, dest, featureName string) {
-	data, _ := templates.ReadFile("templates/feature_templates" + src)
+	data, _ := templates.ReadFile("templates/feature_templates/" + src)
 	content := strings.ReplaceAll(string(data), "{{FEATURE_NAME}}", featureName)
 	os.WriteFile(filepath.Join(featureName, dest), []byte(content), os.ModePerm)
 }
