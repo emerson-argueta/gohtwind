@@ -1,7 +1,7 @@
 # Gohtwind Full-stack Framework 
 
 ## Introduction
-
+### work in progress, feedback welcomed
 Gohtwind is a modern, lightweight, and powerful full-stack framework designed for rapid web application development using Go, TailwindCSS, and htmx. Streamline your development process, from backend to frontend, with Gohtwind's fast and simple approach!
 
 ## Features
