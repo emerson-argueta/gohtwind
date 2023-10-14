@@ -1,0 +1,8 @@
+[build]
+  cmd = "dlv debug --headless --continue --accept-multiclient --api-version=2 --listen=:40000"
+  bin = "tmp/main"
+  full_bin = "go build -o ./tmp/main ."
+
+[watch]
+  includes = ["."]
+  excludes = ["tmp"]
