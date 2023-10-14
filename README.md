@@ -51,8 +51,6 @@ cd your_project_name
 
 |-- Dockerfile.prod
 
-|-- generate-feature.sh
-
 |-- example.env
 
 |-- .gitignore
@@ -133,9 +131,9 @@ cd your_project_name
 
 ## Utility Scripts
 
-1. To generates a new feature within your project run the script:
+1. To generates a new feature within your project run the gohtwind command with the gen-feature flag:
 ```bash
-./gen-feature.sh [feature_name]
+gohtwind -gen-feature [feature_name]
 ```
 * This will create a new feature module with the name `feature_name` in the root of your project directory. 
 * A feature is a page within the web application. 
