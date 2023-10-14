@@ -39,7 +39,7 @@ func generateProject(projectName *string) {
 	})
 
 	// Copy and replace placeholders in templates
-	copyProjTemplate("go.mod", "go.mod", *projectName)
+	copyProjTemplate("go.mod.template", "go.mod", *projectName)
 	copyProjTemplate("main.go", "main.go", *projectName)
 	copyProjTemplate("package.json", "frontend/package.json", *projectName)
 	copyProjTemplate("postcss.config.js", "frontend/postcss.config.js", *projectName)
