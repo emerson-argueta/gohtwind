@@ -1,0 +1,16 @@
+package {{FEATURE_NAME}}
+
+import (
+"net/http"
+)
+
+func SetupRoutes() {
+	http.HandleFunc("/$FEATURE_NAME/", List)
+	http.HandleFunc("/$FEATURE_NAME/create", Create)
+	http.HandleFunc("/$FEATURE_NAME/read", Read)
+	http.HandleFunc("/$FEATURE_NAME/update", Update)
+	http.HandleFunc("/$FEATURE_NAME/delete", Delete)
+
+	// Serve static files for the $FEATURE_NAME feature
+	http.Handle("/static/$FEATURE_NAME/", http.StripPrefix("/static/$FEATURE_NAME/", http.FileServer(http.Dir("./$FEATURE_NAME/static/"))))
+}

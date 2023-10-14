@@ -1,0 +1,30 @@
+package {{FEATURE_NAME}}
+
+import (
+"net/http"
+)
+
+// List displays the list of all items
+func List(w http.ResponseWriter, r *http.Request) {
+	// TODO: Fetch items and render the list template
+}
+
+// Create handles the creation of a new item
+func Create(w http.ResponseWriter, r *http.Request) {
+	// TODO: Handle item creation and render the create template
+}
+
+// Read displays details of a specific item
+func Read(w http.ResponseWriter, r *http.Request) {
+	// TODO: Fetch item details and render the read template
+}
+
+// Update handles updating an existing item
+func Update(w http.ResponseWriter, r *http.Request) {
+	// TODO: Handle item update and render the update template
+}
+
+// Delete handles deleting an item
+func Delete(w http.ResponseWriter, r *http.Request) {
+	// TODO: Handle item deletion
+}
