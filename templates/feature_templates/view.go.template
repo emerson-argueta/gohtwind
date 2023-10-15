@@ -33,3 +33,22 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+
+func renderPartialTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
+	// Get the specific template entry (without the base layout)
+	partial, err := templates.Clone()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	partial, err = partial.New("").ParseFiles(filepath.Join("{{FEATURE_NAME}}", "templates", tmpl))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = partial.ExecuteTemplate(w, tmpl, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+

@@ -7,7 +7,7 @@ import (
 // List displays the list of all items
 func List(w http.ResponseWriter, r *http.Request) {
     // TODO: Fetch items from the database or service, then put them in 'items'
-    item := Item{} // This is a placeholder. Replace 'Item' with your actual data structure.
+    items := []string{"test"} // This is a placeholder. Replace 'Item' with your actual data structure.
 
     // Render the list view with the fetched items
     renderTemplate(w, "list.html", map[string]interface{}{
@@ -29,10 +29,10 @@ func Create(w http.ResponseWriter, r *http.Request) {
 // Read displays details of a specific item
 func Read(w http.ResponseWriter, r *http.Request) {
     // TODO: Fetch item details based on an identifier from 'r', then put it in 'item'
-    item := Item{} // This is a placeholder. Replace 'Item' with your actual data structure.
+    item := "test" // This is a placeholder. Replace 'Item' with your actual data structure.
 
     // Render the read view with the fetched item details
-    renderTemplate(w, "read.html", map[string]interface{}{
+    renderPartialTemplate(w, "read.html", map[string]interface{}{
         "Item": item, // Pass the item as data to the template
     })
 }
