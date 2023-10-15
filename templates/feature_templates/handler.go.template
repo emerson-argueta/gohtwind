@@ -1,30 +1,60 @@
-package {{FEATURE_NAME}}
+package{{FEATURE_NAME}}
 
 import (
-"net/http"
+    "net/http"
 )
 
 // List displays the list of all items
 func List(w http.ResponseWriter, r *http.Request) {
-	// TODO: Fetch items and render the list template
+    // TODO: Fetch items from the database or service, then put them in 'items'
+    item := Item{} // This is a placeholder. Replace 'Item' with your actual data structure.
+
+    // Render the list view with the fetched items
+    renderTemplate(w, "list.html", map[string]interface{}{
+        "Items": items, // Pass the items as data to the template
+    })
 }
 
 // Create handles the creation of a new item
 func Create(w http.ResponseWriter, r *http.Request) {
-	// TODO: Handle item creation and render the create template
+    if r.Method == http.MethodPost {
+        // TODO: Handle item creation logic
+
+        // Redirect to the list view or display a success message
+        http.Redirect(w, r, "/{{FEATURE_NAME}}/list", http.StatusSeeOther)
+        return
+    }
 }
 
 // Read displays details of a specific item
 func Read(w http.ResponseWriter, r *http.Request) {
-	// TODO: Fetch item details and render the read template
+    // TODO: Fetch item details based on an identifier from 'r', then put it in 'item'
+    item := Item{} // This is a placeholder. Replace 'Item' with your actual data structure.
+
+    // Render the read view with the fetched item details
+    renderTemplate(w, "read.html", map[string]interface{}{
+        "Item": item, // Pass the item as data to the template
+    })
 }
 
 // Update handles updating an existing item
 func Update(w http.ResponseWriter, r *http.Request) {
-	// TODO: Handle item update and render the update template
+    if r.Method == http.MethodPatch {
+        // TODO: Handle item update logic
+
+        // Redirect to the list view or display a success message
+        http.Redirect(w, r, "/{{FEATURE_NAME}}/list", http.StatusSeeOther)
+        return
+    }
 }
 
 // Delete handles deleting an item
 func Delete(w http.ResponseWriter, r *http.Request) {
-	// TODO: Handle item deletion
+    if r.Method == http.MethodPost {
+        // TODO: Handle item deletion logic
+
+        // Redirect to the list view or display a success message
+        http.Redirect(w, r, "/{{FEATURE_NAME}}/list", http.StatusSeeOther)
+        return
+    }
 }

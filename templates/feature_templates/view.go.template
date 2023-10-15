@@ -1,16 +1,35 @@
-
 package {{FEATURE_NAME}}
 
 import (
-    "html/template"
-    "net/http"
+	"net/http"
+	"path/filepath"
+	"text/template"
 )
 
-var templates = template.Must(template.ParseGlob("{{FEATURE_NAME}}/templates/*.html"))
+const basePath = "templates/base.html"
+
+var templates *template.Template
+
+//var templates = template.Must(template.ParseGlob("{{FEATURE_NAME}}/templates/*.html"))
+
+func init() {
+	fp := filepath.Join("{{FEATURE_NAME}}", "templates", "*.html")
+	// Parse the base layout.
+	base, err := template.ParseFiles(basePath)
+	if err != nil {
+		panic(err)
+	}
+
+	// Parse the feature templates and associate them with the base layout.
+	templates, err = base.ParseGlob(fp)
+	if err != nil {
+		panic(err)
+	}
+}
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-    err := templates.ExecuteTemplate(w, tmpl, data)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-    }
+	err := templates.ExecuteTemplate(w, tmpl, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

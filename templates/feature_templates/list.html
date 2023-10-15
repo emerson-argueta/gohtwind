@@ -20,7 +20,7 @@
     {{ template "update.html" . }}
 </dialog>
 
-<button id="deleteBtn" onclick="deleteBtn.showModal()">Delete</button>
+<button id="deleteBtn" onclick="deleteConfirmDialog.showModal()">Delete</button>
 <dialog id="deleteConfirmDialog">
     {{ template "delete_confirm.html" . }}
 </dialog>
