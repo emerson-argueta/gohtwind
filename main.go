@@ -32,6 +32,8 @@ func generateProject(projectName *string) {
 
 	// Directory structures
 	createDirs(*projectName, []string{
+		"templates",
+		"templates/shared",
 		"frontend",
 		"frontend/static",
 		"frontend/static/css",
@@ -41,6 +43,7 @@ func generateProject(projectName *string) {
 	// Copy and replace placeholders in templates
 	copyProjTemplate("go.mod.template", "go.mod", *projectName)
 	copyProjTemplate("main.go", "main.go", *projectName)
+	copyProjTemplate("base.html", "templates/base.html", *projectName)
 	copyProjTemplate("package.json", "frontend/package.json", *projectName)
 	copyProjTemplate("postcss.config.js", "frontend/postcss.config.js", *projectName)
 	copyProjTemplate("main.css", "frontend/static/css/main.css", *projectName)

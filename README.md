@@ -11,6 +11,32 @@ Gohtwind is an opinionated and lightweight full-stack framework designed for rap
 - **Live Reloading**: Includes tooling for live-reloading during development
 - **Production Ready**: Comes with Docker configurations tailored for production deployments
 
+## Tech Stack
+### Backend:
+- Language: Go (Golang)
+- Routing: Standard net/http library
+- Templating: Standard html/template library
+- Authentication: Auth0
+- Authorization: Casbin
+- Database Interaction: sqlx
+### Frontend:
+- Dynamic Behavior: htmx
+- Styling: Tailwind CSS
+### Development Environment(Suggested):
+- IDE: GoLand by JetBrains
+Version Control: GitHub
+
+### CI/CD:
+- Automation: GitHub Actions
+- Automated deployment to Google Cloud Run when merging a PR from the main branch to the prod branch.
+- Deployment Setup: Docker (with a production-specific Dockerfile)
+- Deployment & Hosting:
+  - Containerization: Docker
+  - Hosting: Google Cloud Run
+  - Database:
+    - Database Service: Google Cloud SQL 
+    - Database Engine: MySQL
+
 ## Installation
 
 To get started with Gohtwind:
@@ -62,6 +88,11 @@ cd your_project_name
 |-- go.sum
 
   
+|-- templates/ # base template and shared templates
+
+|   |-- shared/
+
+|   |-- base.html 
 
 |-- frontend/
 

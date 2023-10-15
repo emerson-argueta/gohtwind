@@ -1,10 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<!-- list.html -->
+<h1>{{FEATURE_NAME}}</h1>
+<table id="{{FEATURE_NAME}}_list">
+    <!-- Table rows of guitar players -->
+</table>
 
-</body>
-</html>
+<!-- CRUD operation dialogs -->
+<button id="createBtn">Add New</button>
+<dialog id="createDialog">
+    {{ template "create.html" . }}
+</dialog>
+
+<button id="readBtn">Details</button>
+<dialog id="readDialog">
+    {{ template "read.html" . }}
+</dialog>
+
+<button id="updateBtn">Edit</button>
+<dialog id="updateDialog">
+    {{ template "update.html" . }}
+</dialog>
+
+<button id="deleteBtn">Delete</button>
+<dialog id="deleteConfirmDialog">
+    {{ template "delete_confirm.html" . }}
+</dialog>
