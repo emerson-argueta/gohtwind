@@ -6,10 +6,10 @@ Gohtwind is an opinionated and lightweight full-stack framework designed for rap
 
 ## Features
 
-- **Backend**: Robust Go backend setup with a focus on performance and simplicity 
+- **Backend**: Go backend setup with a focus on performance and simplicity 
 - **Frontend**: Integrated with TailwindCSS for utility-first CSS styling and htmx for efficient frontend enhancements
 - **Live Reloading**: Includes tooling for live-reloading during development
-- **Production Ready**: Comes with Docker configurations tailored for production deployments
+- **Deploying**: Comes with Docker configurations tailored for production deployments
 
 ## Tech Stack
 ### Backend:
