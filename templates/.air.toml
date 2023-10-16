@@ -1,8 +1,12 @@
-[build]
-  cmd = "dlv debug --headless --continue --accept-multiclient --api-version=2 --listen=:40000"
-  bin = "tmp/main"
-  full_bin = "go build -o ./tmp/main ."
+# Working directory
+# . or absolute path, please note that the directories following must be under root.
+root = "."
+tmp_dir = "tmp"
 
-[watch]
-  includes = ["."]
-  excludes = ["tmp"]
+[build]
+cmd = "go build -gcflags='all=-N -l' -o ./tmp/main ."
+bin = "tmp/main"
+# Customize binary.
+full_bin = "dlv exec --accept-multiclient --log --headless --continue --listen :2345 --api-version 2 ./tmp/main"
+# Watch these filename extensions.
+include_ext = ["go", "tpl", "tmpl", "html", ".env"]
