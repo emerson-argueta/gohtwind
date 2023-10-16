@@ -1,4 +1,4 @@
-package{{FEATURE_NAME}}
+package {{FEATURE_NAME}}
 
 import (
     "net/http"
