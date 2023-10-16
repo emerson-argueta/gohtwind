@@ -1,45 +1,34 @@
 # --- Build Stage ---
-# Use a full Go builder image
+# Go builder image
 FROM golang:1.17 AS go-builder
-
-# Set up the working directory
 WORKDIR /app
-
-
-# Install dependencies for frontend build (Tailwind CSS)
-FROM node:14 AS node-builder
-
-WORKDIR /frontend
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm install
-COPY frontend ./
-RUN npm run build
-
-# Back to Go builder image
+# Copy Go files and download dependencies
 COPY . .
-
-# Copy the CSS generated in the node-builder stage:
-COPY --from=node-builder /frontend/output.css /path/to/static/css/output.css
-
-# Download Go dependencies
-COPY go.mod go.sum ./
 RUN go mod download
 
-# Build the Go app
+# Node builder image for frontend
+FROM node:14 AS node-builder
+WORKDIR /app/frontend
+COPY frontend/package.json ./
+RUN yarn install
+COPY frontend ./
+RUN yarn build
+
+# Back to Go builder stage for compiling the application
+FROM golang:1.17 AS go-compiler
+WORKDIR /app
+COPY --from=go-builder /app ./
+COPY --from=node-builder /app/frontend/static/css/output.css ./frontend/static/css/output.css
+# Compile the Go application
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
-
 # --- Final Stage ---
-# Use a minimal base image
 FROM debian:buster-slim
-
 WORKDIR /app
-# Copy the compiled Go binary from the builder stage
-COPY --from=go-builder /app/main /app/main
-
-# Copy templates, static assets, and other necessary files
-COPY templates /app/templates
-COPY path/to/static /app/path/to/static
+COPY . .
+# Copy the compiled Go binary and other necessary files into the final image
+COPY --from=go-compiler /app/main ./
+COPY --from=node-builder /app/frontend/static ./frontend/static
 
 # Start the application
 CMD ["./main"]
