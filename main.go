@@ -42,7 +42,7 @@ func generateProject(projectName *string) {
 		"frontend/static/js",
 	})
 
-	err := downloadFile("https://unpkg.com/htmx.org/dist/htmx.min.js", "frontend/static/js/htmx.min.js")
+	err := downloadFile("https://unpkg.com/htmx.org/dist/htmx.min.js", "frontend/static/js/htmx.min.js", *projectName)
 	if err != nil {
 		panic(err)
 	}
@@ -109,13 +109,13 @@ func copyFeatureTemplate(src, dest, featureName string) {
 	os.WriteFile(filepath.Join(featureName, dest), []byte(content), os.ModePerm)
 }
 
-func downloadFile(url string, filepath string) error {
+func downloadFile(url string, dest string, projectName string) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	out, err := os.Create(filepath)
+	out, err := os.Create(filepath.Join(projectName, dest))
 	if err != nil {
 		return err
 	}
