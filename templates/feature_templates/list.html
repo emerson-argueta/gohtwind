@@ -10,7 +10,7 @@
     {{ template "create.html" . }}
 </dialog>
 
-<button id="readBtn" onclick="readDialog.showNotification()">Details</button>
+<button id="readBtn" onclick="readDialog.showModal()">Details</button>
 <dialog id="readDialog">
     {{ template "read.html" . }}
 </dialog>
@@ -22,5 +22,5 @@
 
 <button id="deleteBtn" onclick="deleteConfirmDialog.showModal()">Delete</button>
 <dialog id="deleteConfirmDialog">
-    {{ template "delete_confirm.html" . }}
+    {{ template "delete.html" . }}
 </dialog>
