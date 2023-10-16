@@ -19,6 +19,7 @@ func main() {
 		port = "8080" // Default port if not specified
 	}
 
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/"))))
 	// TODO: Setup routes and middleware
 
 	log.Printf("Server started on :%s\n", port)

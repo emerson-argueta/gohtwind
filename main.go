@@ -4,6 +4,8 @@ import (
 	"embed"
 	"flag"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,6 +41,11 @@ func generateProject(projectName *string) {
 		"frontend/static/css",
 		"frontend/static/js",
 	})
+
+	err := downloadFile("https://unpkg.com/htmx.org/dist/htmx.min.js", "frontend/static/js/htmx.min.js")
+	if err != nil {
+		panic(err)
+	}
 
 	// Copy and replace placeholders in templates
 	copyProjTemplate("go.mod.template", "go.mod", *projectName)
@@ -100,4 +107,19 @@ func copyFeatureTemplate(src, dest, featureName string) {
 	data, _ := templates.ReadFile("templates/feature_templates/" + src)
 	content := strings.ReplaceAll(string(data), "{{FEATURE_NAME}}", featureName)
 	os.WriteFile(filepath.Join(featureName, dest), []byte(content), os.ModePerm)
+}
+
+func downloadFile(url string, filepath string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, resp.Body)
+	return err
 }

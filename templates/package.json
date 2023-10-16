@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Frontend tooling",
   "scripts": {
-    "build:css": "postcss frontend/assets/css/styles.css -o frontend/output.css",
-    "watch:css": "postcss frontend/assets/css/styles.css -o frontend/output.css -w"
+    "build:css": "postcss frontend/assets/css/main.css -o frontend/output.css",
+    "watch:css": "postcss frontend/assets/css/main.css -o frontend/output.css -w"
   },
   "dependencies": {},
   "devDependencies": {
