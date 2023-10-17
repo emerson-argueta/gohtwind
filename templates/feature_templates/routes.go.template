@@ -1,15 +1,31 @@
 package {{FEATURE_NAME}}
 
 import (
-"net/http"
+	"net/http"
 )
 
-func SetupRoutes() {
-	http.HandleFunc("/{{FEATURE_NAME}}/", List)
-	http.HandleFunc("/{{FEATURE_NAME}}/create", Create)
-	http.HandleFunc("/{{FEATURE_NAME}}/read", Read)
-	http.HandleFunc("/{{FEATURE_NAME}}/update", Update)
-	http.HandleFunc("/{{FEATURE_NAME}}/delete", Delete)
+type Middleware func(http.Handler) http.Handler
+
+func SetupRoutes(middleware ...Middleware) {
+	listHandler := http.HandlerFunc(List)
+	createHandler := http.HandlerFunc(Create)
+	readHandler := http.HandlerFunc(Read)
+	updateHandler := http.HandlerFunc(Update)
+	deleteHandler := http.HandlerFunc(Delete)
+
+	for _, m := range middleware {
+		listHandler = http.HandlerFunc(m(listHandler).ServeHTTP)
+		createHandler = http.HandlerFunc(m(createHandler).ServeHTTP)
+		readHandler = http.HandlerFunc(m(readHandler).ServeHTTP)
+		updateHandler = http.HandlerFunc(m(updateHandler).ServeHTTP)
+		deleteHandler = http.HandlerFunc(m(deleteHandler).ServeHTTP)
+	}
+
+	http.Handle("/{{FEATURE_NAME}}/", listHandler)
+	http.Handle("/{{FEATURE_NAME}}/create", createHandler)
+	http.Handle("/{{FEATURE_NAME}}/read", readHandler)
+	http.Handle("/{{FEATURE_NAME}}/update", updateHandler)
+	http.Handle("/{{FEATURE_NAME}}/delete", deleteHandler)
 
 	// Serve static files for the {{FEATURE_NAME}} feature
 	http.Handle("/static/{{FEATURE_NAME}}/", http.StripPrefix("/static/{{FEATURE_NAME}}/", http.FileServer(http.Dir("./{{FEATURE_NAME}}/static/"))))
