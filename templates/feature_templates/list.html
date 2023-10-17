@@ -1,5 +1,7 @@
 {{ template "base.html" }}
 <!-- list.html -->
+{{ define "content" }}
+<!-- list.html -->
 <h1>{{FEATURE_NAME}}</h1>
 <table id="{{FEATURE_NAME}}_list">
     <!-- Table rows of models -->
@@ -25,3 +27,4 @@
 <dialog id="deleteConfirmDialog">
     {{ template "delete.html" . }}
 </dialog>
+{{ end }}

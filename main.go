@@ -40,6 +40,7 @@ func generateProject(projectName *string) {
 		"frontend/static",
 		"frontend/static/css",
 		"frontend/static/js",
+		"frontend/static/images",
 	})
 
 	err := downloadFile("https://unpkg.com/htmx.org/dist/htmx.min.js", "frontend/static/js/htmx.min.js", *projectName)
@@ -55,6 +56,7 @@ func generateProject(projectName *string) {
 	copyProjTemplate("package.json", "frontend/package.json", *projectName)
 	copyProjTemplate("postcss.config.js", "frontend/postcss.config.js", *projectName)
 	copyProjTemplate("main.css", "frontend/static/css/main.css", *projectName)
+	copyProjTemplate("logo.css", "frontend/static/images/logo.png", *projectName)
 	copyProjTemplate("tailwind.config.js", "frontend/tailwind.config.js", *projectName)
 	copyProjTemplate("dev-run.sh", "dev-run.sh", *projectName)
 	copyProjTemplate("Dockerfile.prod", "Dockerfile.prod", *projectName)
