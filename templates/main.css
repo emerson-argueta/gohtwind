@@ -1,3 +1,22 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+@layer components {
+    .btn-clear {
+        @apply rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-300;
+    }
+    .btn-blue {
+        @apply rounded-md bg-blue-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700;
+    }
+    .btn-yellow {
+        @apply rounded-md bg-yellow-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-yellow-700;
+    }
+    .btn-green {
+        @apply rounded-md bg-green-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700;
+    }
+    .btn-red {
+        @apply rounded-md bg-red-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700;
+    }
+}
+
