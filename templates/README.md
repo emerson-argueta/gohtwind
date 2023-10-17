@@ -1,15 +1,41 @@
-# Gohtwind Full-stack Framework 
+# Gohtwind Full-stack Framework
 
 ## Introduction
-
-Gohtwind is a modern, lightweight, and powerful full-stack framework designed for rapid web application development using Go, TailwindCSS, and htmx. Streamline your development process, from backend to frontend, with Gohtwind's fast and simple approach!
+### work in progress, feedback welcomed
+Gohtwind is an opinionated and lightweight full-stack framework designed for rapid web application development using Go, TailwindCSS, and htmx. Streamline your development process, from backend to frontend, with Gohtwind's fast and simple approach!
 
 ## Features
 
-- **Backend**: Robust Go backend setup with a focus on performance and simplicity 
+- **Backend**: Go backend setup with a focus on performance and simplicity
 - **Frontend**: Integrated with TailwindCSS for utility-first CSS styling and htmx for efficient frontend enhancements
 - **Live Reloading**: Includes tooling for live-reloading during development
-- **Production Ready**: Comes with Docker configurations tailored for production deployments
+- **Deploying**: Comes with Docker configurations tailored for production deployments
+
+## Tech Stack
+### Backend:
+- Language: Go (Golang)
+- Routing: Standard net/http library
+- Templating: Standard html/template library
+- Authentication: Auth0
+- Authorization: Casbin
+- Database Interaction: sqlx
+### Frontend:
+- Dynamic Behavior: htmx
+- Styling: Tailwind CSS
+### Development Environment(Suggested):
+- IDE: GoLand by JetBrains
+  Version Control: GitHub
+
+### CI/CD:
+- Automation: GitHub Actions
+- Automated deployment to Google Cloud Run when merging a PR from the main branch to the prod branch.
+- Deployment Setup: Docker (with a production-specific Dockerfile)
+- Deployment & Hosting:
+  - Containerization: Docker
+  - Hosting: Google Cloud Run
+  - Database:
+    - Database Service: Google Cloud SQL
+    - Database Engine: MySQL
 
 ## Installation
 
@@ -51,8 +77,6 @@ cd your_project_name
 
 |-- Dockerfile.prod
 
-|-- generate-feature.sh
-
 |-- example.env
 
 |-- .gitignore
@@ -64,6 +88,11 @@ cd your_project_name
 |-- go.sum
 
   
+|-- templates/ # base template and shared templates
+
+|   |-- shared/
+
+|   |-- base.html 
 
 |-- frontend/
 
@@ -133,20 +162,20 @@ cd your_project_name
 
 ## Utility Scripts
 
-1. To generates a new feature within your project run the script:
+1. To generates a new feature within your project run the gohtwind command with the gen-feature flag:
 ```bash
-./gen-feature.sh [feature_name]
+gohtwind -gen-feature [feature_name]
 ```
-* This will create a new feature module with the name `feature_name` in the root of your project directory. 
-* A feature is a page within the web application. 
+* This will create a new feature module with the name `feature_name` in the root of your project directory.
+* A feature is a page within the web application.
 * The feature script generates boilerplate code for basic CRUD operations.
-* All the CRUD operations are done within the context of a single page. 
+* All the CRUD operations are done within the context of a single page.
   * Traditionally, CRUD operations are done across multiple pages.
-  * Gohtwind's approach is to keep all the CRUD operations within a single page using dialog modals. 
-  * This approach is more efficient and provides a better user experience (IMHO).
+  * Gohtwind's approach is to keep all the CRUD operations within a single page using dialog modals.
+  * This approach is more efficient and provides a better user experience (IMO).
 2. To start the development server run the script:
 ```bash
-./dev-setup-<linux | macos | windows>.sh
+./dev-run.sh
 ```
 
 ## Contributing

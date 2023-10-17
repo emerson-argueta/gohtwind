@@ -175,7 +175,7 @@ gohtwind -gen-feature [feature_name]
   * This approach is more efficient and provides a better user experience (IMO).
 2. To start the development server run the script:
 ```bash
-./dev-setup-<linux | macos | windows>.sh
+./dev-run.sh
 ```
 
 ## Contributing
