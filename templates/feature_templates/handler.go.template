@@ -7,7 +7,7 @@ import (
 // List displays the list of all items
 func List(w http.ResponseWriter, r *http.Request) {
     // TODO: Fetch items from the database or service, then put them in 'items'
-    items := []string{"test"} // This is a placeholder. Replace 'Item' with your actual data structure.
+    items := []string{"test0","test1", "test2"} // This is a placeholder. Replace 'Item' with your actual data structure.
 
     // Render the list view with the fetched items
     renderTemplate(w, "list.html", map[string]interface{}{

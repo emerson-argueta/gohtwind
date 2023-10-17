@@ -1,54 +1,24 @@
 package {{FEATURE_NAME}}
 
 import (
+	"{{PROJECT_NAME}}/view"
 	"net/http"
 	"path/filepath"
-	"text/template"
 )
 
 const basePath = "templates/base.html"
 
-var templates *template.Template
-
-//var templates = template.Must(template.ParseGlob("{{FEATURE_NAME}}/templates/*.html"))
+var fp = filepath.Join("{{FEATURE_NAME}}", "templates", "*.html")
+var feature_view *view.View
 
 func init() {
-	fp := filepath.Join("{{FEATURE_NAME}}", "templates", "*.html")
-	// Parse the base layout.
-	base, err := template.ParseFiles(basePath)
-	if err != nil {
-		panic(err)
-	}
-
-	// Parse the feature templates and associate them with the base layout.
-	templates, err = base.ParseGlob(fp)
-	if err != nil {
-		panic(err)
-	}
+	feature_view = view.New(basePath, fp)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	err := templates.ExecuteTemplate(w, tmpl, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	feature_view.RenderTemplate(w, tmpl, data)
 }
 
 func renderPartialTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	// Get the specific template entry (without the base layout)
-	partial, err := templates.Clone()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	partial, err = partial.New("").ParseFiles(filepath.Join("{{FEATURE_NAME}}", "templates", tmpl))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = partial.ExecuteTemplate(w, tmpl, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	feature_view.RenderPartialTemplate(w, tmpl, data)
 }
-

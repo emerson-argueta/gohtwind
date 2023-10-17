@@ -34,6 +34,7 @@ func generateProject(projectName *string) {
 
 	// Directory structures
 	createDirs(*projectName, []string{
+		"view",
 		"templates",
 		"templates/shared",
 		"frontend",
@@ -51,6 +52,7 @@ func generateProject(projectName *string) {
 	// Copy and replace placeholders in templates
 	copyProjTemplate("go.mod.template", "go.mod", *projectName)
 	copyProjTemplate("main.go", "main.go", *projectName)
+	copyProjTemplate("view.go", "view/view.go", *projectName)
 	copyProjTemplate("middleware.go", "middleware.go", *projectName)
 	copyProjTemplate("base.html", "templates/base.html", *projectName)
 	copyProjTemplate("package.json", "frontend/package.json", *projectName)
@@ -76,11 +78,22 @@ func generateFeature(featureName *string) {
 		"static/css",
 		"templates",
 	})
+	// get the project name from the current directory
+	projName, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
 
 	// Copy and replace placeholders in templates
 	copyFeatureTemplate("handler.go.template", "handler.go", *featureName)
 	copyFeatureTemplate("routes.go.template", "routes.go", *featureName)
+
 	copyFeatureTemplate("view.go.template", "view.go", *featureName)
+	fpv := filepath.Join(projName, *featureName, "view.go")
+	data, _ := templates.ReadFile(fpv)
+	content := strings.ReplaceAll(string(data), "{{PROJECT_NAME}}", projName)
+	os.WriteFile(filepath.Join(projName, fpv), []byte(content), os.ModePerm)
+
 	copyFeatureTemplate("create.html", "templates/create.html", *featureName)
 	copyFeatureTemplate("read.html", "templates/read.html", *featureName)
 	copyFeatureTemplate("update.html", "templates/update.html", *featureName)

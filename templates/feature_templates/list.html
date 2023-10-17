@@ -8,20 +8,21 @@
             onclick="createDialog.showModal()"
             class="btn-blue ml-auto"
     >Add New</button>
-    <dialog id="createDialog">
+    <dialog id="createDialog" class="w-full h-full">
         {{ template "create.html" . }}
     </dialog>
 
     <ul role="list" class="divide-y divide-gray-100">
         {{range $i, $v := .Items}}
+        {{ $im := iterMap $i $v }}
         <dialog id="readDialog{{$i}}">
-            {{ template "read.html" . }}
+            {{ template "read.html" $im }}
         </dialog>
         <dialog id="updateDialog{{$i}}">
-            {{ template "update.html" . }}
+            {{ template "update.html" $im }}
         </dialog>
         <dialog id="deleteDialog{{$i}}">
-            {{ template "delete.html" . }}
+            {{ template "delete.html" $im }}
         </dialog>
         <li class="flex justify-between gap-x-6 py-5">
             <div class="flex min-w-0 gap-x-4">
@@ -74,5 +75,6 @@
         </li>
         {{end}}
     </ul>
+
 </div>
 {{ end }}
