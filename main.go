@@ -55,6 +55,7 @@ func generateProject(projectName *string) {
 	copyProjTemplate("base.html", "templates/base.html", *projectName)
 	copyProjTemplate("package.json", "frontend/package.json", *projectName)
 	copyProjTemplate("postcss.config.js", "frontend/postcss.config.js", *projectName)
+	copyProjTemplate("util.js", "frontend/static/js/util.js", *projectName)
 	copyProjTemplate("main.css", "frontend/static/css/main.css", *projectName)
 	copyProjTemplate("logo.css", "frontend/static/images/logo.png", *projectName)
 	copyProjTemplate("tailwind.config.js", "frontend/tailwind.config.js", *projectName)
