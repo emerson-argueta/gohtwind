@@ -1,32 +1,22 @@
 package {{FEATURE_NAME}}
 
 import (
+	"{{PROJECT_NAME}}/infra"
 	"net/http"
 )
 
-type Middleware func(http.Handler) http.Handler
+var feature_router *infra.Router
 
-func SetupRoutes(middleware ...Middleware) {
-	listHandler := http.HandlerFunc(List)
-	createHandler := http.HandlerFunc(Create)
-	readHandler := http.HandlerFunc(Read)
-	updateHandler := http.HandlerFunc(Update)
-	deleteHandler := http.HandlerFunc(Delete)
-
-	for _, m := range middleware {
-		listHandler = http.HandlerFunc(m(listHandler).ServeHTTP)
-		createHandler = http.HandlerFunc(m(createHandler).ServeHTTP)
-		readHandler = http.HandlerFunc(m(readHandler).ServeHTTP)
-		updateHandler = http.HandlerFunc(m(updateHandler).ServeHTTP)
-		deleteHandler = http.HandlerFunc(m(deleteHandler).ServeHTTP)
+func SetupRoutes(middleware ...infra.Middleware) {
+	var shan = http.StripPrefix("/static/{{FEATURE_NAME}}/", http.FileServer(http.Dir("./{{FEATURE_NAME}}/static/")))
+	routes := []infra.Route{
+		{Handler: http.HandlerFunc(List), Path: "/{{FEATURE_NAME}}/"},
+		{Handler: http.HandlerFunc(Create), Path: "/{{FEATURE_NAME}}/create"},
+		{Handler: http.HandlerFunc(Read), Path: "/{{FEATURE_NAME}}/read"},
+		{Handler: http.HandlerFunc(Update), Path: "/{{FEATURE_NAME}}/update"},
+		{Handler: http.HandlerFunc(Delete), Path: "/{{FEATURE_NAME}}/delete"},
+		{Handler: shan, Path: "/static/{{FEATURE_NAME}}/"},
 	}
-
-	http.Handle("/{{FEATURE_NAME}}/", listHandler)
-	http.Handle("/{{FEATURE_NAME}}/create", createHandler)
-	http.Handle("/{{FEATURE_NAME}}/read", readHandler)
-	http.Handle("/{{FEATURE_NAME}}/update", updateHandler)
-	http.Handle("/{{FEATURE_NAME}}/delete", deleteHandler)
-
-	// Serve static files for the {{FEATURE_NAME}} feature
-	http.Handle("/static/{{FEATURE_NAME}}/", http.StripPrefix("/static/{{FEATURE_NAME}}/", http.FileServer(http.Dir("./{{FEATURE_NAME}}/static/"))))
+	feature_router = infra.NewRouter(routes)
+	feature_router.SetupRoutes(middleware...)
 }

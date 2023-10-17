@@ -52,7 +52,8 @@ func generateProject(projectName *string) {
 	// Copy and replace placeholders in templates
 	copyProjTemplate("go.mod.template", "go.mod", *projectName)
 	copyProjTemplate("main.go", "main.go", *projectName)
-	copyProjTemplate("view.go", "view/view.go", *projectName)
+	copyProjTemplate("view.go", "infra/view.go", *projectName)
+	copyProjTemplate("routes.go", "infra/routes.go", *projectName)
 	copyProjTemplate("middleware.go", "middleware.go", *projectName)
 	copyProjTemplate("base.html", "templates/base.html", *projectName)
 	copyProjTemplate("package.json", "frontend/package.json", *projectName)
@@ -81,6 +82,7 @@ func generateFeature(featureName *string) {
 	copyFeatureTemplate("handler.go.template", "handler.go", *featureName)
 	copyFeatureTemplate("routes.go.template", "routes.go", *featureName)
 	cpFeatTmplWithProjectName("view.go.template", "view.go", *featureName)
+	cpFeatTmplWithProjectName("routes.go.template", "routes.go", *featureName)
 	copyFeatureTemplate("create.html", "templates/create.html", *featureName)
 	copyFeatureTemplate("read.html", "templates/read.html", *featureName)
 	copyFeatureTemplate("update.html", "templates/update.html", *featureName)

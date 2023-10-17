@@ -1,4 +1,4 @@
-package view
+package infra
 
 import (
 	"net/http"
@@ -6,7 +6,6 @@ import (
 	"text/template"
 )
 
-// Create struct to have receiver functions
 type View struct {
 	templates *template.Template
 	basePath  string
@@ -20,7 +19,7 @@ func iterMap(index int, value interface{}) map[string]interface{} {
 	}
 }
 
-func New(basePath string, fp string) *View {
+func NewView(basePath string, fp string) *View {
 	// Parse the base layout.
 	base, err := template.ParseFiles(basePath)
 	if err != nil {
