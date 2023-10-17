@@ -3,14 +3,11 @@
   "version": "1.0.0",
   "description": "Frontend tooling",
   "scripts": {
-    "build:css": "postcss static/css/main.css -o static/css/output.css",
-    "watch:css": "postcss static/css/main.css -o static/css/output.css -w"
+    "build:css": "tailwindcss -i static/css/main.css -o static/css/output.css --minify",
+    "watch:css": "tailwindcss -i static/css/main.css -o static/css/output.css --watch"
   },
   "dependencies": {},
   "devDependencies": {
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.6",
-    "postcss-cli": "^9.0.1",
     "tailwindcss": "^3.0.23"
   }
 }
