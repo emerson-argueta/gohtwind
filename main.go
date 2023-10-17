@@ -34,7 +34,7 @@ func generateProject(projectName *string) {
 
 	// Directory structures
 	createDirs(*projectName, []string{
-		"view",
+		"infra",
 		"templates",
 		"templates/shared",
 		"frontend",
