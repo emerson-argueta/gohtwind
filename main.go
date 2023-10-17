@@ -78,22 +78,10 @@ func generateFeature(featureName *string) {
 		"static/css",
 		"templates",
 	})
-	// get the project name from the current directory
-	projName, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-
 	// Copy and replace placeholders in templates
 	copyFeatureTemplate("handler.go.template", "handler.go", *featureName)
 	copyFeatureTemplate("routes.go.template", "routes.go", *featureName)
-
-	copyFeatureTemplate("view.go.template", "view.go", *featureName)
-	fpv := filepath.Join(projName, *featureName, "view.go")
-	data, _ := templates.ReadFile(fpv)
-	content := strings.ReplaceAll(string(data), "{{PROJECT_NAME}}", projName)
-	os.WriteFile(filepath.Join(projName, fpv), []byte(content), os.ModePerm)
-
+	cpFeatTmplWithProjectName("view.go.template", "view.go", *featureName)
 	copyFeatureTemplate("create.html", "templates/create.html", *featureName)
 	copyFeatureTemplate("read.html", "templates/read.html", *featureName)
 	copyFeatureTemplate("update.html", "templates/update.html", *featureName)
@@ -121,6 +109,21 @@ func copyProjTemplate(src, dest, projectName string) {
 func copyFeatureTemplate(src, dest, featureName string) {
 	data, _ := templates.ReadFile("templates/feature_templates/" + src)
 	content := strings.ReplaceAll(string(data), "{{FEATURE_NAME}}", featureName)
+	os.WriteFile(filepath.Join(featureName, dest), []byte(content), os.ModePerm)
+}
+
+func cpFeatTmplWithProjectName(src, dest, featureName string) {
+	// get the project name from the current directory
+	projPath, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	ps := strings.Split(projPath, "/")
+	projName := ps[len(ps)-1]
+	data, _ := templates.ReadFile("templates/feature_templates/" + src)
+	content := string(data)
+	content = strings.ReplaceAll(content, "{{FEATURE_NAME}}", featureName)
+	content = strings.ReplaceAll(content, "{{PROJECT_NAME}}", projName)
 	os.WriteFile(filepath.Join(featureName, dest), []byte(content), os.ModePerm)
 }
 
