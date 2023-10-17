@@ -9,10 +9,10 @@ import (
 const basePath = "templates/base.html"
 
 var fp = filepath.Join("{{FEATURE_NAME}}", "templates", "*.html")
-var feature_view *view.View
+var feature_view *infra.View
 
 func init() {
-	feature_view = view.New(basePath, fp)
+	feature_view = infra.NewView(basePath, fp)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
