@@ -56,7 +56,6 @@ func generateProject(projectName *string) {
 	copyProjTemplate("middleware.go", "middleware.go", *projectName)
 	copyProjTemplate("base.html", "templates/base.html", *projectName)
 	copyProjTemplate("package.json", "frontend/package.json", *projectName)
-	copyProjTemplate("postcss.config.js", "frontend/postcss.config.js", *projectName)
 	copyProjTemplate("util.js", "frontend/static/js/util.js", *projectName)
 	copyProjTemplate("main.css", "frontend/static/css/main.css", *projectName)
 	copyProjTemplate("logo.css", "frontend/static/images/logo.png", *projectName)
