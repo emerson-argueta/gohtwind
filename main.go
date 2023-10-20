@@ -4,7 +4,9 @@ import (
 	"embed"
 	"flag"
 	"fmt"
+	"github.com/joho/godotenv"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -14,7 +16,15 @@ import (
 //go:embed templates/*
 var templates embed.FS
 
+//go:embed .env
+var envFile embed.FS
+
 func main() {
+	err := loadEmbeddedEnv()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	// Command-line arguments
 	projectName := flag.String("name", "", "Name of the project to be generated")
 	featureName := flag.String("gen-feature", "", "Generate a new feature")
@@ -30,20 +40,47 @@ func main() {
 	}
 }
 
-func generateProject(projectName *string) {
+// loadEmbeddedEnv reads the .env file from the embedded file system.
+func loadEmbeddedEnv() error {
+	// Read the embedded .env file
+	env, err := envFile.ReadFile(".env") // make sure the path is correct relative to the embedding directive
+	if err != nil {
+		return err
+	}
 
+	// Parse the environment variables from the byte content
+	envMap, err := godotenv.Unmarshal(string(env))
+	if err != nil {
+		return err
+	}
+
+	// Range over the map and set each key-value pair in the environment
+	for key, value := range envMap {
+		err := os.Setenv(key, value)
+		if err != nil {
+			// If there is an error setting any value, the function returns immediately with the error
+			return err
+		}
+	}
+
+	return nil // No error encountered, environment variables are set
+}
+
+func generateProject(projectName *string) {
 	// Directory structures
 	createDirs(*projectName, []string{
 		"infra",
 		"templates",
 		"templates/shared",
 		"frontend",
+		"frontend/bin",
 		"frontend/static",
 		"frontend/static/css",
 		"frontend/static/js",
 		"frontend/static/images",
 	})
-
+	tc := NewTailwindCompiler()
+	tc.downloadCompiler(*projectName, "frontend/bin/tailwind")
 	err := downloadFile("https://unpkg.com/htmx.org/dist/htmx.min.js", "frontend/static/js/htmx.min.js", *projectName)
 	if err != nil {
 		panic(err)
