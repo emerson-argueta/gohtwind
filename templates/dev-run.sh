@@ -12,15 +12,9 @@ start_go_watcher() {
 
 # Function to start the CSS watcher
 start_css_watcher() {
-    cd frontend
     # Install frontend dependencies
-    echo "Running yarn install..."
-    yarn install
-    # Start watching CSS
-    echo "Running yarn watch:css..."
-    yarn watch:css
     chmod +x ./frontend/bin/tailwindcss
-    ./frontend/bin/tailwindcss -i static/css/main.css -o static/css/output.css --watch
+    ./frontend/bin/tailwindcss -i ./frontend/static/css/main.css -o ./frontend/static/css/output.css --watch
 }
 
 # Prepare Go modules
