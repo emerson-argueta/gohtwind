@@ -8,7 +8,7 @@ import (
 
 const basePath = "templates/base.html"
 
-var fp = filepath.Join("{{FEATURE_NAME}}", "templates", "*.html")
+var fp = filepath.Join("{{FEATURE_NAME}}", "templates")
 var feature_view *infra.View
 
 func init() {

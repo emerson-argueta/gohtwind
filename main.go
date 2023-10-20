@@ -6,25 +6,23 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"io"
-	"log"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-//go:embed templates/*
-var templates embed.FS
+//go:embed proj_template/*
+var projTemplate embed.FS
+
+//go:embed feat_template/*
+var featTemplate embed.FS
 
 //go:embed .env
 var envFile embed.FS
 
 func main() {
-	err := loadEmbeddedEnv()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
 	// Command-line arguments
 	projectName := flag.String("name", "", "Name of the project to be generated")
 	featureName := flag.String("gen-feature", "", "Generate a new feature")
@@ -41,127 +39,113 @@ func main() {
 }
 
 // loadEmbeddedEnv reads the .env file from the embedded file system.
-func loadEmbeddedEnv() error {
+func loadEmbeddedEnv() (map[string]string, error) {
 	// Read the embedded .env file
 	env, err := envFile.ReadFile(".env") // make sure the path is correct relative to the embedding directive
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Parse the environment variables from the byte content
-	envMap, err := godotenv.Unmarshal(string(env))
-	if err != nil {
-		return err
-	}
-
-	// Range over the map and set each key-value pair in the environment
-	for key, value := range envMap {
-		err := os.Setenv(key, value)
-		if err != nil {
-			// If there is an error setting any value, the function returns immediately with the error
-			return err
-		}
-	}
-
-	return nil // No error encountered, environment variables are set
+	return godotenv.Unmarshal(string(env))
 }
 
 func generateProject(projectName *string) {
-	// Directory structures
-	createDirs(*projectName, []string{
-		"infra",
-		"templates",
-		"templates/shared",
-		"frontend",
-		"frontend/bin",
-		"frontend/static",
-		"frontend/static/css",
-		"frontend/static/js",
-		"frontend/static/images",
-	})
-	tc := NewTailwindCompiler()
-	tc.downloadCompiler(*projectName, "frontend/bin/tailwindcss")
-	err := downloadFile("https://unpkg.com/htmx.org/dist/htmx.min.js", "frontend/static/js/htmx.min.js", *projectName)
+	copyProjTemplate(*projectName)
+	envMap, err := loadEmbeddedEnv()
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
 	}
-
-	// Copy and replace placeholders in templates
-	copyProjTemplate("go.mod.template", "go.mod", *projectName)
-	copyProjTemplate("main.go", "main.go", *projectName)
-	copyProjTemplate("view.go", "infra/view.go", *projectName)
-	copyProjTemplate("routes.go", "infra/routes.go", *projectName)
-	copyProjTemplate("middleware.go", "middleware.go", *projectName)
-	copyProjTemplate("base.html", "templates/base.html", *projectName)
-	copyProjTemplate("util.js", "frontend/static/js/util.js", *projectName)
-	copyProjTemplate("main.css", "frontend/static/css/main.css", *projectName)
-	copyProjTemplate("logo.css", "frontend/static/images/logo.png", *projectName)
-	copyProjTemplate("tailwind.config.js", "tailwind.config.js", *projectName)
-	copyProjTemplate("dev-run.sh", "dev-run.sh", *projectName)
-	copyProjTemplate("Dockerfile.prod", "Dockerfile.prod", *projectName)
-	copyProjTemplate(".gitignore", ".gitignore", *projectName)
-	copyProjTemplate("example.env", "example.env", *projectName)
-	copyProjTemplate(".air.toml", ".air.toml", *projectName)
-
+	tc := NewTailwindCompiler(envMap)
+	tc.downloadCompiler(*projectName, "frontend/bin/tailwindcss")
+	err = downloadFile("https://unpkg.com/htmx.org/dist/htmx.min.js", "frontend/static/js/htmx.min.js", *projectName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 	fmt.Printf("Project '%s' has been generated!\n", *projectName)
 }
 
 func generateFeature(featureName *string) {
-	// Directory structures
-	createDirs(*featureName, []string{
-		"static",
-		"static/js",
-		"static/css",
-		"templates",
-	})
-	// Copy and replace placeholders in templates
-	copyFeatureTemplate("handler.go.template", "handler.go", *featureName)
-	copyFeatureTemplate("routes.go.template", "routes.go", *featureName)
-	cpFeatTmplWithProjectName("view.go.template", "view.go", *featureName)
-	cpFeatTmplWithProjectName("routes.go.template", "routes.go", *featureName)
-	copyFeatureTemplate("create.html", "templates/create.html", *featureName)
-	copyFeatureTemplate("read.html", "templates/read.html", *featureName)
-	copyFeatureTemplate("update.html", "templates/update.html", *featureName)
-	copyFeatureTemplate("delete.html", "templates/delete.html", *featureName)
-	copyFeatureTemplate("list.html", "templates/list.html", *featureName)
-
+	copyFeatTemplate(*featureName)
 	fmt.Printf("Feature '%s' has been generated!\n", *featureName)
 	fmt.Printf("Add the following to the main.go file:\n")
 	fmt.Printf("import \"%s\"\n", *featureName)
-	fmt.Printf("%s.SetupRoutes()\n", *featureName)
+	fmt.Printf("%s.SetupRoutes(infra.LoggingMiddleware)\n", *featureName)
 
 }
-func createDirs(projectName string, dirs []string) {
-	for _, dir := range dirs {
-		os.MkdirAll(filepath.Join(projectName, dir), os.ModePerm)
+
+func copyProjTemplate(projectName string) {
+	// Create the project directory
+	projectPath := filepath.Join(".", projectName)
+	os.MkdirAll(projectPath, os.ModePerm)
+
+	// Walk through the embedded file system
+	err := fs.WalkDir(projTemplate, "proj_template", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		// Construct the target path
+		targetPath := filepath.Join(projectPath, strings.TrimPrefix(path, "proj_template"))
+		targetPath = strings.ReplaceAll(targetPath, "template.", "")
+		if d.IsDir() {
+			return os.MkdirAll(targetPath, os.ModePerm)
+		}
+		if strings.Contains(targetPath, "blank.txt") {
+			return nil
+		}
+		// If it's a file, read and copy it
+		data, err := projTemplate.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		// If you need to replace placeholders within the files, do it here.
+		content := strings.ReplaceAll(string(data), "{{PROJECT_NAME}}", projectName)
+		// Write the file to the target directory
+		return os.WriteFile(targetPath, []byte(content), os.ModePerm)
+	})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
 	}
 }
 
-func copyProjTemplate(src, dest, projectName string) {
-	data, _ := templates.ReadFile("templates/" + src)
-	content := strings.ReplaceAll(string(data), "{{PROJECT_NAME}}", projectName)
-	os.WriteFile(filepath.Join(projectName, dest), []byte(content), os.ModePerm)
-}
-
-func copyFeatureTemplate(src, dest, featureName string) {
-	data, _ := templates.ReadFile("templates/feature_templates/" + src)
-	content := strings.ReplaceAll(string(data), "{{FEATURE_NAME}}", featureName)
-	os.WriteFile(filepath.Join(featureName, dest), []byte(content), os.ModePerm)
-}
-
-func cpFeatTmplWithProjectName(src, dest, featureName string) {
+func copyFeatTemplate(featureName string) {
 	// get the project name from the current directory
 	projPath, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
 	}
 	ps := strings.Split(projPath, "/")
 	projName := ps[len(ps)-1]
-	data, _ := templates.ReadFile("templates/feature_templates/" + src)
-	content := string(data)
-	content = strings.ReplaceAll(content, "{{FEATURE_NAME}}", featureName)
-	content = strings.ReplaceAll(content, "{{PROJECT_NAME}}", projName)
-	os.WriteFile(filepath.Join(featureName, dest), []byte(content), os.ModePerm)
+
+	featurePath := filepath.Join(".", featureName)
+	os.MkdirAll(featurePath, os.ModePerm)
+	err = fs.WalkDir(featTemplate, "feat_template", func(path string, d fs.DirEntry, err error) error {
+		targetPath := filepath.Join(featurePath, strings.TrimPrefix(path, "feat_template"))
+		targetPath = strings.ReplaceAll(targetPath, "template.", "")
+		if d.IsDir() {
+			return os.MkdirAll(targetPath, os.ModePerm)
+		}
+		if strings.Contains(targetPath, "blank.txt") {
+			return nil
+		}
+		data, err := featTemplate.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		content := string(data)
+		content = strings.ReplaceAll(content, "{{FEATURE_NAME}}", featureName)
+		content = strings.ReplaceAll(content, "{{PROJECT_NAME}}", projName)
+		return os.WriteFile(targetPath, []byte(content), os.ModePerm)
+
+	})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 func downloadFile(url string, dest string, projectName string) error {

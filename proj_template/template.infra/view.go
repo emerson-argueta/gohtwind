@@ -26,7 +26,7 @@ func NewView(basePath string, fp string) *View {
 		panic(err)
 	}
 	// Parse the feature templates and associate them with the base layout.
-	templates, err := base.Funcs(template.FuncMap{"iterMap": iterMap}).ParseGlob(fp)
+	templates, err := base.Funcs(template.FuncMap{"iterMap": iterMap}).ParseGlob(filepath.Join(fp, "*.html"))
 	if err != nil {
 		panic(err)
 	}
@@ -50,7 +50,7 @@ func (v *View) RenderPartialTemplate(w http.ResponseWriter, tmpl string, data in
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	partial, err = partial.New("").ParseFiles(filepath.Join("guitar_players", "templates", tmpl))
+	partial, err = partial.New("").ParseFiles(filepath.Join(v.fp, tmpl))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

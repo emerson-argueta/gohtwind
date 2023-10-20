@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"{{PROJECT_NAME}}/infra"
 )
 
 func main() {
@@ -18,7 +19,7 @@ func main() {
 		port = "8080" // Default port if not specified
 	}
 
-	http.Handle("/static/", LoggingMiddleware(http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/")))))
+	http.Handle("/static/", infra.LoggingMiddleware(http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/")))))
 	// TODO: Setup routes and middleware
 
 	log.Printf("Server started on :%s\n", port)
