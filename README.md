@@ -73,7 +73,7 @@ cd your_project_name
 
 /myapp
 
-|-- dev-setup-<linux | macos | windows>.sh
+|-- dev-run.sh
 
 |-- Dockerfile.prod
 
