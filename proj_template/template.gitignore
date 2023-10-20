@@ -55,7 +55,7 @@ ehthumbs.db
 
 # Node.js
 node_modules/
-template.frontend/node_modules/
+frontend/node_modules/
 
 # Logs and databases
 *.log
@@ -63,7 +63,7 @@ template.frontend/node_modules/
 *.sqlite
 
 # TailwindCSS build output
-template.frontend/output.css
+frontend/static/css/output.css
 
 # Others
 *.swp
