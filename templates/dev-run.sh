@@ -19,6 +19,8 @@ start_css_watcher() {
     # Start watching CSS
     echo "Running yarn watch:css..."
     yarn watch:css
+    chmod +x ./frontend/bin/tailwindcss
+    ./frontend/bin/tailwindcss -i static/css/main.css -o static/css/output.css --watch
 }
 
 # Prepare Go modules

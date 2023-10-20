@@ -93,7 +93,6 @@ func generateProject(projectName *string) {
 	copyProjTemplate("routes.go", "infra/routes.go", *projectName)
 	copyProjTemplate("middleware.go", "middleware.go", *projectName)
 	copyProjTemplate("base.html", "templates/base.html", *projectName)
-	copyProjTemplate("package.json", "frontend/package.json", *projectName)
 	copyProjTemplate("util.js", "frontend/static/js/util.js", *projectName)
 	copyProjTemplate("main.css", "frontend/static/css/main.css", *projectName)
 	copyProjTemplate("logo.css", "frontend/static/images/logo.png", *projectName)

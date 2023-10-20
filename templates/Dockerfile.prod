@@ -14,11 +14,24 @@ RUN yarn install
 COPY frontend ./
 RUN yarn build
 
+# Tailwind CSS compilation stage
+FROM alpine:latest AS tailwind-compiler
+WORKDIR /app/frontend
+# Install wget and ca-certificates for HTTPS requests
+RUN apk --no-cache add wget ca-certificates
+# Download the Tailwind CLI tool
+RUN wget -q 'https://github.com/tailwindlabs/tailwindcss/releases/download/v3.3.3/tailwindcss-linux-x64' -O tailwindcss
+RUN chmod +x tailwindcss
+# Copy only the CSS files needed for Tailwind compilation from the build context
+COPY frontend ./
+# Perform the Tailwind compilation
+RUN ./tailwindcss -i ./static/css/main.css -o ./static/css/output.css --minify
+
 # Back to Go builder stage for compiling the application
 FROM golang:1.17 AS go-compiler
 WORKDIR /app
 COPY --from=go-builder /app ./
-COPY --from=node-builder /app/frontend/static/css/output.css ./frontend/static/css/output.css
+COPY --from=tailwind-compiler /app/frontend/static/css/output.css ./frontend/static/css/output.css
 # Compile the Go application
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
@@ -28,7 +41,7 @@ WORKDIR /app
 COPY . .
 # Copy the compiled Go binary and other necessary files into the final image
 COPY --from=go-compiler /app/main ./
-COPY --from=node-builder /app/frontend/static ./frontend/static
+COPY --from=tailwind-compiler /app/frontend/static ./frontend/static
 
 # Start the application
 CMD ["./main"]
