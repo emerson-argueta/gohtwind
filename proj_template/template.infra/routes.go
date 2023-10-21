@@ -1,11 +1,12 @@
 package infra
 
 import (
+	"database/sql"
 	"net/http"
 )
 
 type Route struct {
-	Handler http.Handler
+	Handler func(db *sql.DB) http.Handler
 	Path    string
 }
 
@@ -21,9 +22,9 @@ func NewRouter(routes []Route) *Router {
 	}
 }
 
-func (r *Router) SetupRoutes(middleware ...Middleware) {
+func (r *Router) SetupRoutes(db *sql.DB, middleware ...Middleware) {
 	for _, r := range r.routes {
-		h := r.Handler
+		h := r.Handler(db)
 		for _, m := range middleware {
 			h = http.HandlerFunc(m(h).ServeHTTP)
 		}

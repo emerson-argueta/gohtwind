@@ -18,7 +18,7 @@ Gohtwind is an opinionated and lightweight full-stack framework designed for rap
 - Templating: Standard html/template library
 - Authentication: Auth0 (coming soon)
 - Authorization: Casbin (coming soon)
-- Database Interaction: sqlx (coming soon)
+- Database Interaction: go-jet/jet
 ### Frontend:
 - Dynamic Behavior: htmx
 - Styling: Tailwind CSS

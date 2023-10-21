@@ -72,7 +72,7 @@ func generateFeature(featureName *string) {
 	fmt.Printf("Feature '%s' has been generated!\n", *featureName)
 	fmt.Printf("Add the following to the main.go file:\n")
 	fmt.Printf("import \"%s\"\n", *featureName)
-	fmt.Printf("%s.SetupRoutes(infra.LoggingMiddleware)\n", *featureName)
+	fmt.Printf("%s.SetupRoutes(db, infra.LoggingMiddleware)\n", *featureName)
 
 }
 
