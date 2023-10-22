@@ -41,7 +41,7 @@ Gohtwind is an opinionated and lightweight full-stack framework designed for rap
 
 To get started with Gohtwind:
 
-1. Ensure you have Go and Nodejs(for tailwind, frontend tooling deps) installed on your machine.
+1. Ensure you have Go installed on your machine.
 2. Clone/download the Gohtwind repository.
 3. Navigate to the Gohtwind directory and run:
 
@@ -66,7 +66,27 @@ gohtwind -name your_project_name
 cd your_project_name
 ```
 
-3. Start developing your application!
+3. Create a page (a.k.a. feature) within your project:
+
+```bash
+gohtwind -gen-feature [feature_name]
+```
+
+4. Generate sql models using go-jet/jet:
+
+```bash
+jet -source=mysql -dsn="<username>:<password>@tcp(<host>:<port>)/<dbname>" -path=./.gen
+```
+
+5. Rename imports in feature handler.go files to match dbname:
+i.e. `readers/.gen/<dbname>/model`
+
+6. Start the development server:
+```bash
+./dev-run.sh
+```
+
+5. Start developing your application!
 
 ## Directory Structure
 ```
