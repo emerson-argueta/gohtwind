@@ -6,7 +6,7 @@ import (
 )
 
 type Route struct {
-	Handler func(db *sql.DB) http.Handler
+	Handler func(dbs map[string]*sql.DB) http.Handler
 	Path    string
 }
 
@@ -22,9 +22,9 @@ func NewRouter(routes []Route) *Router {
 	}
 }
 
-func (r *Router) SetupRoutes(db *sql.DB, middleware ...Middleware) {
+func (r *Router) SetupRoutes(dbs map[string]*sql.DB, middleware ...Middleware) {
 	for _, r := range r.routes {
-		h := r.Handler(db)
+		h := r.Handler(dbs)
 		for _, m := range middleware {
 			h = http.HandlerFunc(m(h).ServeHTTP)
 		}

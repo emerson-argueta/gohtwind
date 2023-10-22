@@ -5,12 +5,13 @@ import (
     . "{{PROJECT_NAME}}/.gen/test_db/table"
     "database/sql"
     . "github.com/go-jet/jet/v2/mysql"
+    . "github.com/go-jet/jet/v2/postgres"
     "log"
     "net/http"
 )
 
 // List displays the list of all items
-func List(db *sql.DB) http.Handler {
+func List(dbs map[string]*sql.DB) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         // TODO: Fetch items from the database or service, then put them in 'items'
         items := []string{"test0", "test1", "test2"} // This is a placeholder. Replace 'Item' with your actual data structure.
@@ -23,7 +24,7 @@ func List(db *sql.DB) http.Handler {
 }
 
 // Create handles the creation of a new item
-func Create(db *sql.DB) http.Handler {
+func Create(dbs map[string]*sql.DB) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         if r.Method == http.MethodPost {
             // TODO: Handle item creation logic
@@ -36,7 +37,7 @@ func Create(db *sql.DB) http.Handler {
 }
 
 // Read displays details of a specific item
-func Read(db *sql.DB) http.Handler {
+func Read(dbs map[string]*sql.DB) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         // TODO: Fetch item details based on an identifier from 'r', then put it in 'item'
         item := "test" // This is a placeholder. Replace 'Item' with your actual data structure.
@@ -49,7 +50,7 @@ func Read(db *sql.DB) http.Handler {
 }
 
 // Update handles updating an existing item
-func Update(db *sql.DB) http.Handler {
+func Update(dbs map[string]*sql.DB) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         if r.Method == http.MethodPatch {
             // TODO: Handle item update logic
@@ -62,7 +63,7 @@ func Update(db *sql.DB) http.Handler {
 }
 
 // Delete handles deleting an item
-func Delete(db *sql.DB) http.Handler {
+func Delete(dbs map[string]*sql.DB) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         if r.Method == http.MethodPost {
             // TODO: Handle item deletion logic

@@ -1,4 +1,4 @@
-package {{FEAURE_NAME}}
+package {{FEATURE_NAME}}
 
 import (
 	"{{PROJECT_NAME}}/infra"
@@ -8,18 +8,18 @@ import (
 
 var feature_router *infra.Router
 
-func SetupRoutes(db *sql.DB, middleware ...infra.Middleware) {
-	var shan = func(db *sql.DB) http.Handler {
-		return http.StripPrefix("/static/{{FEAURE_NAME}}/", http.FileServer(http.Dir("./{{FEAURE_NAME}}/static/")))
+func SetupRoutes(dbs map[string]*sql.DB, middleware ...infra.Middleware) {
+	var shan = func(dbs map[string]*sql.DB) http.Handler {
+		return http.StripPrefix("/static/{{FEATURE_NAME}}/", http.FileServer(http.Dir("./{{FEATURE_NAME}}/static/")))
 	}
 	routes := []infra.Route{
-		{Handler: List, Path: "/{{FEAURE_NAME}}/"},
-		{Handler: Create, Path: "/{{FEAURE_NAME}}/create"},
-		{Handler: Read, Path: "/{{FEAURE_NAME}}/read"},
-		{Handler: Update, Path: "/{{FEAURE_NAME}}/update"},
-		{Handler: Delete, Path: "/{{FEAURE_NAME}}/delete"},
-		{Handler: shan, Path: "/static/{{FEAURE_NAME}}/"},
+		{Handler: List, Path: "/{{FEATURE_NAME}}/"},
+		{Handler: Create, Path: "/{{FEATURE_NAME}}/create"},
+		{Handler: Read, Path: "/{{FEATURE_NAME}}/read"},
+		{Handler: Update, Path: "/{{FEATURE_NAME}}/update"},
+		{Handler: Delete, Path: "/{{FEATURE_NAME}}/delete"},
+		{Handler: shan, Path: "/static/{{FEATURE_NAME}}/"},
 	}
 	feature_router = infra.NewRouter(routes)
-	feature_router.SetupRoutes(db, middleware...)
+	feature_router.SetupRoutes(dbs, middleware...)
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
+	"flag"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"log"
@@ -11,35 +11,49 @@ import (
 	"{{PROJECT_NAME}}/infra"
 )
 
-var db *sql.DB
-
 func main() {
-	err := godotenv.Load()
+	envFileName := setUpEnv()
+	err := godotenv.Load(envFileName)
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Error loading env file")
 	}
-
 	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080" // Default port if not specified
-	}
-	var (
-		host     = os.Getenv("DB_HOST")
-		dbport   = os.Getenv("DB_PORT")
-		user     = os.Getenv("DB_USER")
-		password = os.Getenv("DB_PASSWORD")
-		dbName   = os.Getenv("DB_NAME")
-	)
-	connectString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", user, password, host, dbport, dbName)
-	db, err = sql.Open("mysql", connectString)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
 
+	dbs, err := infra.NewDBsConfig().ConnectAll()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, db := range dbs {
+		defer func(db *sql.DB) {
+			err := db.Close()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}(db)
+		err = db.Ping()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	http.Handle("/static/", infra.LoggingMiddleware(http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/")))))
 	// TODO: Setup routes and middleware
 
 	log.Printf("Server started on :%s\n", port)
-	http.ListenAndServe(":"+port, nil)
+	err = http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func setUpEnv() string {
+	// Define the -env flag
+	env := flag.String("env", "development", "Environment (production or development)")
+	flag.Parse()
+	var envFileName string
+	if *env == "production" {
+		envFileName = ".env.production"
+	} else {
+		envFileName = ".env"
+	}
+	return envFileName
 }
