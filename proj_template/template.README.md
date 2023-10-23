@@ -53,41 +53,33 @@ sudo cp gohtwind /usr/local/bin/
 Now, you can use the `gohtwind` command from anywhere in your terminal!
 
 ## Quick Start
-
 1. Create a new Gohtwind project:
-
 ```bash
 gohtwind -name your_project_name
 ```
-
 2. Navigate to your project directory:
-
 ```bash
 cd your_project_name
 ```
-
 3. Create a page (a.k.a. feature) within your project:
-
 ```bash
 gohtwind -gen-feature [feature_name]
 ```
-
-4. Generate sql models using go-jet/jet:
-
+4. Generate sql models using:
 ```bash
-jet -source=mysql -dsn="<username>:<password>@tcp(<host>:<port>)/<dbname>" -path=./.gen
+gohtwind -gen-models -source=mysql -dsn=<username>:<password>@tcp(<host>:<port>)/<dbname>
+# or
+gohtwind -gen-models -source=postgres -dsn=postgresql://<user>:<password>@<host>:<port>/<dbname>?sslmode=disable
 ```
-
-5. Rename imports in feature handler.go files to match dbname:
-   i.e. `readers/.gen/<dbname>/model`
-
+5. Generate a repository file for the feature:
+```bash
+gohtwind -gen-repository -feature-name=<feature_name> -model-name=<model_name> -db-name-or-schema=<dbname_or_schema> -adapter=<mysql | postgres>
+```
 6. Start the development server:
 ```bash
 ./dev-run.sh
 ```
-
 5. Start developing your application!
-
 ## Directory Structure
 ```
 
@@ -101,6 +93,9 @@ jet -source=mysql -dsn="<username>:<password>@tcp(<host>:<port>)/<dbname>" -path
 
 |-- .gitignore
 
+|-- .gen/ # Generated sql models
+
+|-- config/ # Configuration files 
   
 
 |-- go.mod
@@ -143,8 +138,6 @@ jet -source=mysql -dsn="<username>:<password>@tcp(<host>:<port>)/<dbname>" -path
 |   |-- repository.go
 
 |   |-- view.go
-
-|   |-- models.go
 
 |   |-- routes.go
 
@@ -193,14 +186,36 @@ gohtwind -gen-feature [feature_name]
   * Traditionally, CRUD operations are done across multiple pages.
   * Gohtwind's approach is to keep all the CRUD operations within a single page using dialog modals.
   * This approach is more efficient and provides a better user experience (IMO).
-2. To start the development server run the script:
+2. To generate sql models, use the following gohtwind command:
+```bash
+gohtwind -gen-models -source=<source> -dsn=<dsn> -schema=<schema>
+```
+* It wraps the go-jet/jet run the jet command
+* Generated models are placed in the `.gen` directory at the root of your project directory.
+* The `-source` flag specifies the database source. Currently, only MySQL and Postgres is supported.
+* The `-dsn` flag specifies the database connection string.
+* The `-schema` flag specifies the database schema to generate models for. (Only applicable for Postgres)
+3. To generate repository boilerplate code, use the following gohtwind command:
+```bash
+gohtwind -gen-repository -feature-name=<feature_name> -model-name=<model_name> -db-name-or-schema=<dbname_or_schema> -adapter=<mysql | postgres>
+```
+* This will generate a repository file for the specified feature and model.
+* The repository file contains boilerplate code for basic CRUD operations.
+* The repository file is used by the feature's handler to interact with the database.
+* The `-feature-name` flag specifies the name of the feature the repository is for.
+* The `-model-name` flag specifies the name of the model (sql table) the repository is for.
+* The `-db-name-or-schema` flag specifies the name of the database (mysql) or schema (postgres) the model is in.
+* The `-adapter` flag specifies the database adapter to use. Currently, only MySQL and Postgres is supported.
+```bash
+
+3. To start the development server run the script:
 ```bash
 ./dev-run.sh
 ```
 
 ## Contributing
 
-Contributions to Gohtwind are welcome. Please read our [Contributing Guide](<link-to-contributing-guide>) for more information.
+Contributions to Gohtwind are welcome. Please read our [Contributing Guide](<link-to-contributing-guide>) (coming soon) for more information.
 
 ## License
 
