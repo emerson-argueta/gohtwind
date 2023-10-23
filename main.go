@@ -24,10 +24,10 @@ var featTemplate embed.FS
 var envFile embed.FS
 
 var cmdFuncs = map[string]func(){
-	"-new":            generateProject,
-	"-gen-feature":    generateFeature,
-	"-gen-models":     generateModels,
-	"-gen-repository": generateRepository,
+	"new":            generateProject,
+	"gen-feature":    generateFeature,
+	"gen-models":     generateModels,
+	"gen-repository": generateRepository,
 }
 
 func main() {
@@ -75,7 +75,8 @@ func usageString() string {
 func generateProject() {
 	projNameFlag := flag.NewFlagSet("new", flag.ExitOnError)
 	projectName := projNameFlag.String("name", "trash", "Name of the project to be generated")
-	flag.Parse()
+	args := os.Args[2:]
+	projNameFlag.Parse(args)
 	copyProjTemplate(*projectName)
 	envMap, err := loadEmbeddedEnv()
 	if err != nil {
@@ -93,8 +94,10 @@ func generateProject() {
 }
 
 func generateFeature() {
-	featureName := flag.String("name", "", "name of the feature to be generated")
-	flag.Parse()
+	featureNameFlags := flag.NewFlagSet("gen-feature", flag.ExitOnError)
+	featureName := flag.String("name", "trash", "name of the feature to be generated")
+	args := os.Args[2:]
+	featureNameFlags.Parse(args)
 	copyFeatTemplate(*featureName)
 	fmt.Printf("Feature '%s' has been generated!\n", *featureName)
 	fmt.Printf("Add the following to the main.go file:\n")
@@ -105,13 +108,14 @@ func generateFeature() {
 
 func generateModels() {
 	genModelsFlags := flag.NewFlagSet("models", flag.ExitOnError)
-	modelsAdapter := genModelsFlags.String("adapter", "", "Database adapter (mysql, postgres)")
+	modelsAdapter := genModelsFlags.String("adapter", "mysql", "Database adapter (mysql, postgres)")
 	u := `Database connection string
 			postgres ex: <username>:<password>@tcp(<host>:<port>)/<dbname>
 			mysql ex: <username>:<password>@tcp(<host>:<port>)/<dbname`
 	modelsDsn := genModelsFlags.String("dsn", "", u)
 	modelsSchema := genModelsFlags.String("schema", "", "Database schema (postgres adapter only)")
-	flag.Parse()
+	args := os.Args[2:]
+	genModelsFlags.Parse(args)
 	dsnArg := fmt.Sprintf("-dsn=%s", *modelsDsn)
 	adapterArg := fmt.Sprintf("-adapter=%s", *modelsAdapter)
 	var schemaArg string
@@ -130,7 +134,8 @@ func generateRepository() {
 	repoDbName := generateRepo.String("db-name", "", "Name of the database the model is in")
 	repoSchema := generateRepo.String("schema-name", "", "Name of the schema the model is in (postgres adapter only)")
 	repoAdapter := generateRepo.String("adapter", "", "Database adapter (mysql, postgres)")
-	flag.Parse()
+	args := os.Args[2:]
+	generateRepo.Parse(args)
 	// find feature directory
 	projPath, err := os.Getwd()
 	if err != nil {
