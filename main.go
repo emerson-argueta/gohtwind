@@ -73,7 +73,7 @@ func usageString() string {
 }
 
 func generateProject() {
-	projectName := flag.String("name", "", "Name of the project to be generated")
+	projectName := flag.String("name", "trash", "Name of the project to be generated")
 	flag.Parse()
 	copyProjTemplate(*projectName)
 	envMap, err := loadEmbeddedEnv()
