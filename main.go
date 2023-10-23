@@ -24,10 +24,10 @@ var featTemplate embed.FS
 var envFile embed.FS
 
 var cmdFuncs = map[string]func(){
-	"new":            generateProject,
-	"gen-feature":    generateFeature,
-	"gen-models":     generateModels,
-	"gen-repository": generateRepository,
+	"-new":            generateProject,
+	"-gen-feature":    generateFeature,
+	"-gen-models":     generateModels,
+	"-gen-repository": generateRepository,
 }
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 }
 
 func usageString() string {
-	return `Usage: gohtwind new [options]
+	return `Usage: gohtwind -new [options]
 			Options: 
 				-name string
 					Name of the project to be generated
@@ -49,7 +49,7 @@ func usageString() string {
 			Options:
 				-name string
 					Name of the feature to be generated
-			Usage: gohtwind gen-models [options]
+			Usage: gohtwind -gen-models [options]
 			Options:
 				-adapter string
 					Database adapter (mysql, postgres)
@@ -59,7 +59,7 @@ func usageString() string {
 					mysql ex: <username>:<password>@tcp(<host>:<port>)/<dbname
 				-schema string
 					Database schema (postgres adapter only)
-			Usage: gohtwind gen-repository [options]
+			Usage: gohtwind -gen-repository [options]
 			Options:
 				-feature-name string
 					Name of the feature the repository is for
@@ -73,7 +73,8 @@ func usageString() string {
 }
 
 func generateProject() {
-	projectName := flag.String("name", "trash", "Name of the project to be generated")
+	projNameFlag := flag.NewFlagSet("new", flag.ExitOnError)
+	projectName := projNameFlag.String("name", "trash", "Name of the project to be generated")
 	flag.Parse()
 	copyProjTemplate(*projectName)
 	envMap, err := loadEmbeddedEnv()
