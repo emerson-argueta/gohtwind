@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -22,35 +23,62 @@ var featTemplate embed.FS
 //go:embed .env
 var envFile embed.FS
 
-func main() {
-	// Command-line arguments
-	projectName := flag.String("name", "", "Name of the project to be generated")
-	featureName := flag.String("gen-feature", "", "Generate a new feature")
-	flag.Parse()
+var cmdFuncs = map[string]func(){
+	"new":            generateProject,
+	"gen-feature":    generateFeature,
+	"gen-models":     generateModels,
+	"gen-repository": generateRepository,
+}
 
-	if *projectName != "" {
-		generateProject(projectName)
-	} else if *featureName != "" {
-		generateFeature(featureName)
-	} else {
-		fmt.Println("Usage: gohtwind [-name project-name] [-gen-feature feature-name]")
+func main() {
+	if len(flag.Args()) == 0 {
+		fmt.Println(usageString())
 		os.Exit(1)
 	}
-}
-
-// loadEmbeddedEnv reads the .env file from the embedded file system.
-func loadEmbeddedEnv() (map[string]string, error) {
-	// Read the embedded .env file
-	env, err := envFile.ReadFile(".env") // make sure the path is correct relative to the embedding directive
-	if err != nil {
-		return nil, err
+	cmd := flag.Arg(0)
+	if f, ok := cmdFuncs[cmd]; !ok {
+		fmt.Println(usageString())
+		os.Exit(1)
+	} else {
+		f()
 	}
-
-	// Parse the environment variables from the byte content
-	return godotenv.Unmarshal(string(env))
 }
 
-func generateProject(projectName *string) {
+func usageString() string {
+	return `Usage: gohtwind new [options]
+			Options: 
+				-name string
+					Name of the project to be generated
+			Usage: gohtwind gen-feature [options]
+			Options:
+				-name string
+					Name of the feature to be generated
+			Usage: gohtwind gen-models [options]
+			Options:
+				-adapter string
+					Database adapter (mysql, postgres)
+				-dsn string
+					Database connection string
+					postgres ex: <username>:<password>@tcp(<host>:<port>)/<dbname>
+					mysql ex: <username>:<password>@tcp(<host>:<port>)/<dbname
+				-schema string
+					Database schema (postgres adapter only)
+			Usage: gohtwind gen-repository [options]
+			Options:
+				-feature-name string
+					Name of the feature the repository is for
+				-model-name string
+					Name of the model the repository is for
+				-db-name-or-schema string
+					Name of the database (mysql) or schema (postgres) the model is in
+				-adapter string
+					Database adapter (mysql, postgres)
+	`
+}
+
+func generateProject() {
+	projectName := flag.String("name", "", "Name of the project to be generated")
+	flag.Parse()
 	copyProjTemplate(*projectName)
 	envMap, err := loadEmbeddedEnv()
 	if err != nil {
@@ -67,13 +95,77 @@ func generateProject(projectName *string) {
 	fmt.Printf("Project '%s' has been generated!\n", *projectName)
 }
 
-func generateFeature(featureName *string) {
+func generateFeature() {
+	featureName := flag.String("name", "", "name of the feature to be generated")
+	flag.Parse()
 	copyFeatTemplate(*featureName)
 	fmt.Printf("Feature '%s' has been generated!\n", *featureName)
 	fmt.Printf("Add the following to the main.go file:\n")
 	fmt.Printf("import \"%s\"\n", *featureName)
 	fmt.Printf("%s.SetupRoutes(dbs, infra.LoggingMiddleware)\n", *featureName)
 
+}
+
+func generateModels() {
+	genModelsFlags := flag.NewFlagSet("models", flag.ExitOnError)
+	modelsAdapter := genModelsFlags.String("adapter", "", "Database adapter (mysql, postgres)")
+	u := `Database connection string
+			postgres ex: <username>:<password>@tcp(<host>:<port>)/<dbname>
+			mysql ex: <username>:<password>@tcp(<host>:<port>)/<dbname`
+	modelsDsn := genModelsFlags.String("dsn", "", u)
+	modelsSchema := genModelsFlags.String("schema", "", "Database schema (postgres adapter only)")
+	flag.Parse()
+	dsnArg := fmt.Sprintf("-dsn=%s", *modelsDsn)
+	adapterArg := fmt.Sprintf("-adapter=%s", *modelsAdapter)
+	var schemaArg string
+	if *modelsSchema == "" {
+		schemaArg = fmt.Sprintf("-schema=%s", *modelsSchema)
+		exec.Command("./bin/jet", "-path=./.gen", dsnArg, schemaArg, adapterArg).Run()
+	} else {
+		exec.Command("./bin/jet", "-path=./.gen", dsnArg, adapterArg).Run()
+	}
+}
+
+func generateRepository() {
+	generateRepo := flag.NewFlagSet("gen-repository", flag.ExitOnError)
+	repoFeatName := generateRepo.String("feature-name", "", "Name of the feature the repository is for")
+	repoModelName := generateRepo.String("model-name", "", "Name of the model the repository is for")
+	repoDbName := generateRepo.String("db-name", "", "Name of the database the model is in")
+	repoSchema := generateRepo.String("schema-name", "", "Name of the schema the model is in (postgres adapter only)")
+	repoAdapter := generateRepo.String("adapter", "", "Database adapter (mysql, postgres)")
+	flag.Parse()
+	// find feature directory
+	projPath, err := os.Getwd()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	ps := strings.Split(projPath, "/")
+	projName := ps[len(ps)-1]
+	featPath := filepath.Join(projPath, *repoFeatName)
+	// create repository.go file in feature directory
+	repoFile, err := os.Create(filepath.Join(featPath, "repository.go"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	defer repoFile.Close()
+	// write to repository.go file
+	repoFile.WriteString(fmt.Sprintf("package %s\n\n", *repoFeatName))
+	// write jet sql driver import
+	if *repoAdapter == "postgres" {
+		repoFile.WriteString(fmt.Sprintf("import _ \"github.com/go-jet/jet/v2/postgres\"\n"))
+		repoFile.WriteString(fmt.Sprintf("import \"%s/.gen/%s/%s/model\"\n\n", projName, *repoDbName, *repoSchema))
+		repoFile.WriteString(fmt.Sprintf("import \"%s/.gen/%s/%s/table\"\n\n", projName, *repoDbName, *repoSchema))
+	}
+	if *repoAdapter == "mysql" {
+		repoFile.WriteString(fmt.Sprintf("import _ \"github.com/go-jet/jet/v2/mysql\"\n\n"))
+		repoFile.WriteString(fmt.Sprintf("import \"%s/.gen/%s/model\"\n\n", projName, *repoDbName))
+		repoFile.WriteString(fmt.Sprintf("import \"%s/.gen/%s/table\"\n\n", projName, *repoDbName))
+	}
+	// TODO: write basic CRUD functions
+
+	fmt.Printf("Repository has been generated for feature %s, with model: %s!\n", *repoFeatName, *repoModelName)
 }
 
 func copyProjTemplate(projectName string) {
@@ -161,4 +253,16 @@ func downloadFile(url string, dest string, projectName string) error {
 	defer out.Close()
 	_, err = io.Copy(out, resp.Body)
 	return err
+}
+
+// loadEmbeddedEnv reads the .env file from the embedded file system.
+func loadEmbeddedEnv() (map[string]string, error) {
+	// Read the embedded .env file
+	env, err := envFile.ReadFile(".env") // make sure the path is correct relative to the embedding directive
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse the environment variables from the byte content
+	return godotenv.Unmarshal(string(env))
 }
