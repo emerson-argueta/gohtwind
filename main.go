@@ -31,11 +31,7 @@ var cmdFuncs = map[string]func(){
 }
 
 func main() {
-	if len(flag.Args()) == 0 {
-		fmt.Println(usageString())
-		os.Exit(1)
-	}
-	cmd := flag.Arg(0)
+	cmd := os.Args[1]
 	if f, ok := cmdFuncs[cmd]; !ok {
 		fmt.Println(usageString())
 		os.Exit(1)
