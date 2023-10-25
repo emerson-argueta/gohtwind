@@ -1,11 +1,7 @@
 package {{FEATURE_NAME}}
 
 import (
-    "{{PROJECT_NAME}}/.gen/test_db/model"
-    . "{{PROJECT_NAME}}/.gen/test_db/table"
     "database/sql"
-    . "github.com/go-jet/jet/v2/mysql"
-    . "github.com/go-jet/jet/v2/postgres"
     "net/http"
 )
 
