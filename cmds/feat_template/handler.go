@@ -6,7 +6,6 @@ import (
     "database/sql"
     . "github.com/go-jet/jet/v2/mysql"
     . "github.com/go-jet/jet/v2/postgres"
-    "log"
     "net/http"
 )
 
