@@ -1,7 +1,8 @@
-package main
+package cmds
 
 import (
 	"fmt"
+	"gohtwind/utils"
 	"runtime"
 	"strings"
 )
@@ -30,7 +31,7 @@ func NewTailwindCompiler(envMap map[string]string) *TailwindCompiler {
 
 func (t *TailwindCompiler) downloadCompiler(projectName string, dest string) {
 	dl := t.envMap[t.downloadURLVar]
-	err := downloadFile(dl, dest, projectName)
+	err := utils.DownloadFile(dl, dest, projectName)
 	if err != nil {
 		panic(err)
 	}
