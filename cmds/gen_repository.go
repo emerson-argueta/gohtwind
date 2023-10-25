@@ -15,8 +15,10 @@ func genRepoUsageString() string {
 			Name of the feature the repository is for
 		-model-name string
 			Name of the model the repository is for
-		-db-name-or-schema string
-			Name of the database (mysql) or schema (postgres) the model is in
+		-db-name string
+			Name of the database the model is in
+		-schema-name string
+			Name of the schema the model is in (postgres adapter only)
 		-adapter string
 			Database adapter (mysql, postgres)
 	Info:
