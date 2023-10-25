@@ -10,6 +10,7 @@ import (
 
 func genRepoUsageString() string {
 	return `
+Usage: gohtwind gen-repository [options]
     Options:
 		-feature-name string
 			Name of the feature the repository is for
@@ -30,7 +31,7 @@ func genRepoUsageString() string {
 }
 
 func GenRepository() {
-	generateRepo := flag.NewFlagSet("gen-repository", flag.ExitOnError)
+	generateRepo := flag.NewFlagSet("gohtwind gen-repository", flag.ExitOnError)
 	repoFeatName := generateRepo.String("feature-name", "", "Name of the feature the repository is for")
 	repoModelName := generateRepo.String("model-name", "", "Name of the model the repository is for")
 	repoDbName := generateRepo.String("db-name", "", "Name of the database the model is in")
