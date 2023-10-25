@@ -69,7 +69,7 @@ func GenRepository() {
 	if *repoAdapter == "postgres" {
 		repoFile.WriteString(fmt.Sprintf("import _ \"github.com/go-jet/jet/v2/postgres\"\n"))
 		repoFile.WriteString(fmt.Sprintf("import \"%s/.gen/%s/%s/model\"\n\n", projName, *repoDbName, *repoSchema))
-		repoFile.WriteString(fmt.Sprintf("import \"%s/.gen/%s/%s/table\"\n\n", projName, *repoDbName, *repoSchema))
+		repoFile.WriteString(fmt.Sprintf("import . \"%s/.gen/%s/%s/table\"\n\n", projName, *repoDbName, *repoSchema))
 	}
 	if *repoAdapter == "mysql" {
 		repoFile.WriteString(fmt.Sprintf("import _ \"github.com/go-jet/jet/v2/mysql\"\n\n"))
