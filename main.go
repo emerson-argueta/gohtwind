@@ -31,6 +31,10 @@ var cmdFuncs = map[string]func(){
 }
 
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Println(usageString())
+		os.Exit(1)
+	}
 	cmd := os.Args[1]
 	if f, ok := cmdFuncs[cmd]; !ok {
 		fmt.Println(usageString())
@@ -41,34 +45,37 @@ func main() {
 }
 
 func usageString() string {
-	return `Usage: gohtwind -new [options]
-			Options: 
-				-name string
-					Name of the project to be generated
-			Usage: gohtwind gen-feature [options]
-			Options:
-				-name string
-					Name of the feature to be generated
-			Usage: gohtwind -gen-models [options]
-			Options:
-				-adapter string
-					Database adapter (mysql, postgres)
-				-dsn string
-					Database connection string
-					postgres ex: <username>:<password>@tcp(<host>:<port>)/<dbname>
-					mysql ex: <username>:<password>@tcp(<host>:<port>)/<dbname
-				-schema string
-					Database schema (postgres adapter only)
-			Usage: gohtwind -gen-repository [options]
-			Options:
-				-feature-name string
-					Name of the feature the repository is for
-				-model-name string
-					Name of the model the repository is for
-				-db-name-or-schema string
-					Name of the database (mysql) or schema (postgres) the model is in
-				-adapter string
-					Database adapter (mysql, postgres)
+	return `
+
+Usage: gohtwind new [options]
+    Options: 
+		-name string
+			Name of the project to be generated
+Usage: gohtwind gen-feature [options]
+    Options:
+		-name string
+			Nameof the feature to be generated
+Usage: gohtwind gen-models [options]
+    Options:
+		-adapter string
+			Database adapter (mysql, postgres)
+		-dsn string
+			Database connection string
+			postgres ex: <username>:<password>@tcp(<host>:<port>)/<dbname>
+			mysql ex: <username>:<password>@tcp(<host>:<port>)/<dbname
+		-schema string
+			Database schema (postgres adapter only)
+Usage: gohtwind gen-repository [options]
+    Options:
+		-feature-name string
+			Name of the feature the repository is for
+		-model-name string
+			Name of the model the repository is for
+		-db-name-or-schema string
+			Name of the database (mysql) or schema (postgres) the model is in
+		-adapter string
+			Database adapter (mysql, postgres)
+
 	`
 }
 
