@@ -10,7 +10,15 @@ import (
 
 func genFeatUsageString() string {
 	return `
-Usage: gohtwind gen-feature <name>
+Usage: gohtwind gen-feature <feature_name>
+	Info:
+		* This command should not be run outside of a gohtwind project directory. 
+		* Creates a module with the same name of the feature in the root of your project directory. 
+		* A feature is a page within the web application. 
+		* Generates boilerplate code for basic CRUD operations.
+		* All the CRUD operations are done within the context of a single page. 
+		* Traditionally, CRUD operations are done across multiple pages.
+		* Gohtwind's approach is to keep all the CRUD operations within a single page using dialog modals. 
 `
 }
 
@@ -19,7 +27,7 @@ func GenFeature() {
 		fmt.Println(genFeatUsageString())
 		os.Exit(1)
 	}
-	featureName := os.Args[1]
+	featureName := os.Args[2]
 	if featureName == "" {
 		fmt.Println(genFeatUsageString())
 		os.Exit(1)

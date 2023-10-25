@@ -19,6 +19,11 @@ func genRepoUsageString() string {
 			Name of the database (mysql) or schema (postgres) the model is in
 		-adapter string
 			Database adapter (mysql, postgres)
+	Info:
+		* Generates a repository file for the specified feature and model
+		* The repository file contains boilerplate code for basic CRUD operations
+		* The repository file is used by the feature's handler to interact with the database
+
 `
 }
 

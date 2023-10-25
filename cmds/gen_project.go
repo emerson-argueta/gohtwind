@@ -21,10 +21,10 @@ var envFile embed.FS
 
 func genProjUsageString() string {
 	return `
-Usage: gohtwind new [options]
-    Options: 
-		-name string
-			Name of the project to be generated
+Usage: gohtwind new <project_name> 
+	Info:
+		* Creates a new project with the name you specify.
+		* The project is created in the current directory.
 `
 }
 
@@ -33,7 +33,7 @@ func GenProject() {
 		fmt.Println(genProjUsageString())
 		os.Exit(1)
 	}
-	projectName := os.Args[1]
+	projectName := os.Args[2]
 	if projectName == "" {
 		fmt.Println(genProjUsageString())
 		os.Exit(1)
