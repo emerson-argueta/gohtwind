@@ -1,5 +1,4 @@
 
-// CRUD operation
 func Create{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m model.{{MODEL_NAME}}) {
 	stmt := {{MODEL_NAME}}.INSERT().VALUES(m)
 	log.Println(stmt.DebugSql())
