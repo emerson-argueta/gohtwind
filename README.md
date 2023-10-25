@@ -65,21 +65,44 @@ cd your_project_name
 ```bash
 gohtwind gen-feature [feature_name]
 ```
-4. Generate sql models using:
+4. Add feature routes to the `main.go` in the root of your project directory:
+```go
+package main
+
+
+func main() {
+	// ...
+    http.Handle("/static/", infra.LoggingMiddleware(http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/")))))
+    // replace feature_name with the name of your feature 
+    feature_name.SetupRoutes(dbs, infra.LoggingMiddleware)
+	// you can add more features here
+    feature_name_2.SetupRoutes(dbs, infra.LoggingMiddleware)
+	// ...
+    feature_name_n.SetupRoutes(dbs, infra.LoggingMiddleware)
+
+    log.Printf("Server started on :%s\n", port)
+    err = http.ListenAndServe(":"+port, nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+}
+````
+5. Generate sql models using:
 ```bash
 gohtwind gen-models -adapter=mysql -dsn="<username>:<password>@tcp(<host>:<port>)/<dbname>"
 # or
 gohtwind gen-models -adapter=postgres -dsn="postgresql://<user>:<password>@<host>:<port>/<dbname>?sslmode=disable -schema=<schema>"
 ```
-5. Generate a repository file for the feature:
+6. Generate a repository file for the feature:
 ```bash
+# Make sure that the model_name is the same as the generated model name (Usually the table name in TitleCase) 
 gohtwind gen-repository -feature-name=<feature_name> -model-name=<model_name> -db-name-or-schema=<dbname_or_schema> -adapter=<mysql | postgres>
 ```
-6. Start the development server:
+7. Start the development server:
 ```bash
 ./dev-run.sh
 ```
-5. Start developing your application!
+8. Start developing your application!
 ## Directory Structure
 ```
 

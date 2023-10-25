@@ -1,6 +1,7 @@
 package cmds
 
 import (
+	"embed"
 	"flag"
 	"fmt"
 	"os"
@@ -30,53 +31,106 @@ Usage: gohtwind gen-repository [options]
 `
 }
 
-func GenRepository() {
-	generateRepo := flag.NewFlagSet("gohtwind gen-repository", flag.ExitOnError)
-	repoFeatName := generateRepo.String("feature-name", "", "Name of the feature the repository is for")
-	repoModelName := generateRepo.String("model-name", "", "Name of the model the repository is for")
-	repoDbName := generateRepo.String("db-name", "", "Name of the database the model is in")
-	repoSchema := generateRepo.String("schema-name", "", "Name of the schema the model is in (postgres adapter only)")
-	repoAdapter := generateRepo.String("adapter", "", "Database adapter (mysql, postgres)")
-	args := os.Args[2:]
-	generateRepo.Parse(args)
-	if *repoFeatName == "" || *repoModelName == "" || *repoDbName == "" || *repoAdapter == "" {
-		fmt.Println(genRepoUsageString())
-		os.Exit(1)
-	}
-	if *repoAdapter == "postgres" && *repoSchema == "" {
-		fmt.Println(genRepoUsageString())
-		os.Exit(1)
-	}
-	// find feature directory
-	projPath, err := os.Getwd()
+//go:embed repo_template/repo_partial.go
+var repoPartialFile embed.FS
+
+type repo struct {
+	flagSet     *flag.FlagSet
+	featName    *string
+	modelName   *string
+	dbName      *string
+	schema      *string
+	adapter     *string
+	projectPath string
+}
+
+func newRepo() *repo {
+	fgs := flag.NewFlagSet("gohtwind gen-repository", flag.ExitOnError)
+	pjp, err := os.Getwd()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
-	ps := strings.Split(projPath, "/")
-	projName := ps[len(ps)-1]
-	featPath := filepath.Join(projPath, *repoFeatName)
-	// create repository.go file in feature directory
+	return &repo{
+		flagSet:     fgs,
+		featName:    fgs.String("feature-name", "", "Name of the feature the repository is for"),
+		modelName:   fgs.String("model-name", "", "Name of the model the repository is for"),
+		dbName:      fgs.String("db-name", "", "Name of the database the model is in"),
+		schema:      fgs.String("schema-name", "", "Name of the schema the model is in (postgres adapter only)"),
+		adapter:     fgs.String("adapter", "", "Database adapter (mysql, postgres)"),
+		projectPath: pjp,
+	}
+}
+func GenRepository() {
+	r := newRepo()
+	args := os.Args[2:]
+	err := r.flagSet.Parse(args)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	if *r.featName == "" || *r.modelName == "" || *r.dbName == "" || *r.adapter == "" {
+		fmt.Println(genRepoUsageString())
+		os.Exit(1)
+	}
+	if *r.adapter == "postgres" && *r.schema == "" {
+		fmt.Println(genRepoUsageString())
+		os.Exit(1)
+	}
+	genRepoFile(r)
+	fmt.Printf("Repository has been generated for feature %s, with model: %s!\n", *r.featName, *r.modelName)
+}
+
+func genRepoFile(r *repo) {
+	featPath := filepath.Join(r.projectPath, *r.featName)
 	repoFile, err := os.Create(filepath.Join(featPath, "repository.go"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 	defer repoFile.Close()
-	// write to repository.go file
-	repoFile.WriteString(fmt.Sprintf("package %s\n\n", *repoFeatName))
-	// write jet sql driver import
-	if *repoAdapter == "postgres" {
-		repoFile.WriteString(fmt.Sprintf("import _ \"github.com/go-jet/jet/v2/postgres\"\n"))
-		repoFile.WriteString(fmt.Sprintf("import \"%s/.gen/%s/%s/model\"\n\n", projName, *repoDbName, *repoSchema))
-		repoFile.WriteString(fmt.Sprintf("import . \"%s/.gen/%s/%s/table\"\n\n", projName, *repoDbName, *repoSchema))
-	}
-	if *repoAdapter == "mysql" {
-		repoFile.WriteString(fmt.Sprintf("import _ \"github.com/go-jet/jet/v2/mysql\"\n\n"))
-		repoFile.WriteString(fmt.Sprintf("import \"%s/.gen/%s/model\"\n\n", projName, *repoDbName))
-		repoFile.WriteString(fmt.Sprintf("import \"%s/.gen/%s/table\"\n\n", projName, *repoDbName))
-	}
-	// TODO: write basic CRUD functions
+	writeImports(repoFile, r)
+	writePartial(repoFile, r)
+}
 
-	fmt.Printf("Repository has been generated for feature %s, with model: %s!\n", *repoFeatName, *repoModelName)
+func writeImports(repoFile *os.File, r *repo) {
+	ps := strings.Split(r.projectPath, "/")
+	projName := ps[len(ps)-1]
+	imports := fmt.Sprintf("package %s\n\n", *r.featName)
+	imports = fmt.Sprintf("%simport(\n", imports)
+	imports = fmt.Sprintf("%s\t\"database/sql\"\n", imports)
+	imports = fmt.Sprintf("%s\t\"log\"\n", imports)
+	imports = fmt.Sprintf("%s\t\"%s/infra\"\n", imports, projName)
+	if *r.adapter == "postgres" {
+		imports = fmt.Sprintf("%s\t. \"github.com/go-jet/jet/v2/postgres\"\n", imports)
+		imports = fmt.Sprintf("%s\t\"%s/.gen/%s/%s/model\"\n", imports, projName, *r.dbName, *r.schema)
+		imports = fmt.Sprintf("%s\t. \"%s/.gen/%s/%s/table\"\n", imports, projName, *r.dbName, *r.schema)
+	}
+	if *r.adapter == "mysql" {
+		imports = fmt.Sprintf("%s\t. \"github.com/go-jet/jet/v2/mysql\"\n", imports)
+		imports = fmt.Sprintf("%s\t\"%s/.gen/%s/model\"\n", imports, projName, *r.dbName)
+		imports = fmt.Sprintf("%s\t. \"%s/.gen/%s/table\"\n", imports, projName, *r.dbName)
+	}
+	imports = fmt.Sprintf("%s)\n\n", imports)
+	_, err := repoFile.WriteString(imports)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func writePartial(repoFile *os.File, r *repo) {
+	repoPartial, err := repoPartialFile.ReadFile("repo_template/repo_partial.go")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	content := string(repoPartial)
+	content = strings.ReplaceAll(content, "{{DB_NAME}}", *r.dbName)
+	content = strings.ReplaceAll(content, "{{MODEL_NAME}}", *r.modelName)
+	_, err = repoFile.WriteString(content)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 }
