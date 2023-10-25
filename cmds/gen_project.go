@@ -2,7 +2,6 @@ package cmds
 
 import (
 	"embed"
-	"flag"
 	"fmt"
 	"gohtwind/utils"
 	"io/fs"
@@ -30,28 +29,29 @@ Usage: gohtwind new [options]
 }
 
 func GenProject() {
-	projNameFlag := flag.NewFlagSet("new", flag.ExitOnError)
-	projectName := projNameFlag.String("name", "", "Name of the project to be generated")
-	args := os.Args[2:]
-	projNameFlag.Parse(args)
-	if *projectName == "" {
+	if len(os.Args) < 3 {
 		fmt.Println(genProjUsageString())
 		os.Exit(1)
 	}
-	copyProjTemplate(*projectName)
+	projectName := os.Args[1]
+	if projectName == "" {
+		fmt.Println(genProjUsageString())
+		os.Exit(1)
+	}
+	copyProjTemplate(projectName)
 	envMap, err := utils.LoadEmbeddedEnv(envFile)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 	tc := NewTailwindCompiler(envMap)
-	tc.downloadCompiler(*projectName, "frontend/bin/tailwindcss")
-	err = utils.DownloadFile("https://unpkg.com/htmx.org/dist/htmx.min.js", "frontend/static/js/htmx.min.js", *projectName)
+	tc.downloadCompiler(projectName, "frontend/bin/tailwindcss")
+	err = utils.DownloadFile("https://unpkg.com/htmx.org/dist/htmx.min.js", "frontend/static/js/htmx.min.js", projectName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("Project '%s' has been generated!\n", *projectName)
+	fmt.Printf("Project '%s' has been generated!\n", projectName)
 }
 
 func copyProjTemplate(projectName string) {

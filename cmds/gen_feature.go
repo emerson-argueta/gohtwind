@@ -1,7 +1,6 @@
 package cmds
 
 import (
-	"flag"
 	"fmt"
 	"io/fs"
 	"os"
@@ -11,27 +10,25 @@ import (
 
 func genFeatUsageString() string {
 	return `
-Usage: gohtwind gen-feature [options]
-    Options:
-		-name string
-			Nameof the feature to be generated
+Usage: gohtwind gen-feature <name>
 `
 }
 
 func GenFeature() {
-	featureNameFlags := flag.NewFlagSet("gen-feature", flag.ExitOnError)
-	featureName := flag.String("name", "", "name of the feature to be generated")
-	args := os.Args[2:]
-	featureNameFlags.Parse(args)
-	if *featureName == "" {
+	if len(os.Args) < 3 {
 		fmt.Println(genFeatUsageString())
 		os.Exit(1)
 	}
-	copyFeatTemplate(*featureName)
-	fmt.Printf("Feature '%s' has been generated!\n", *featureName)
+	featureName := os.Args[1]
+	if featureName == "" {
+		fmt.Println(genFeatUsageString())
+		os.Exit(1)
+	}
+	copyFeatTemplate(featureName)
+	fmt.Printf("Feature '%s' has been generated!\n", featureName)
 	fmt.Printf("Add the following to the main.go file:\n")
-	fmt.Printf("import \"%s\"\n", *featureName)
-	fmt.Printf("%s.SetupRoutes(dbs, infra.LoggingMiddleware)\n", *featureName)
+	fmt.Printf("import \"%s\"\n", featureName)
+	fmt.Printf("%s.SetupRoutes(dbs, infra.LoggingMiddleware)\n", featureName)
 
 }
 
