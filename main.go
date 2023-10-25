@@ -44,17 +44,26 @@ func main() {
 	}
 }
 
-func usageString() string {
+func genProjUsageString() string {
 	return `
-
 Usage: gohtwind new [options]
     Options: 
 		-name string
 			Name of the project to be generated
+`
+}
+
+func genFeatUsageString() string {
+	return `
 Usage: gohtwind gen-feature [options]
     Options:
 		-name string
 			Nameof the feature to be generated
+`
+}
+
+func genModelsUsageString() string {
+	return `
 Usage: gohtwind gen-models [options]
     Options:
 		-adapter string
@@ -65,7 +74,11 @@ Usage: gohtwind gen-models [options]
 			mysql ex: <username>:<password>@tcp(<host>:<port>)/<dbname
 		-schema string
 			Database schema (postgres adapter only)
-Usage: gohtwind gen-repository [options]
+`
+}
+
+func genRepoUsageString() string {
+	return `
     Options:
 		-feature-name string
 			Name of the feature the repository is for
@@ -75,15 +88,33 @@ Usage: gohtwind gen-repository [options]
 			Name of the database (mysql) or schema (postgres) the model is in
 		-adapter string
 			Database adapter (mysql, postgres)
+`
+}
 
-	`
+func usageString() string {
+	return `
+Usage: gohtwind <command> [options]
+	Commands:
+		new
+			Generate a new project
+		gen-feature
+			Generate a new feature
+		gen-models
+			Generate models from a database
+		gen-repository
+			Generate a repository for a feature
+`
 }
 
 func generateProject() {
 	projNameFlag := flag.NewFlagSet("new", flag.ExitOnError)
-	projectName := projNameFlag.String("name", "trash", "Name of the project to be generated")
+	projectName := projNameFlag.String("name", "", "Name of the project to be generated")
 	args := os.Args[2:]
 	projNameFlag.Parse(args)
+	if *projectName == "" {
+		fmt.Println(genProjUsageString())
+		os.Exit(1)
+	}
 	copyProjTemplate(*projectName)
 	envMap, err := loadEmbeddedEnv()
 	if err != nil {
@@ -102,9 +133,13 @@ func generateProject() {
 
 func generateFeature() {
 	featureNameFlags := flag.NewFlagSet("gen-feature", flag.ExitOnError)
-	featureName := flag.String("name", "trash", "name of the feature to be generated")
+	featureName := flag.String("name", "", "name of the feature to be generated")
 	args := os.Args[2:]
 	featureNameFlags.Parse(args)
+	if *featureName == "" {
+		fmt.Println(genFeatUsageString())
+		os.Exit(1)
+	}
 	copyFeatTemplate(*featureName)
 	fmt.Printf("Feature '%s' has been generated!\n", *featureName)
 	fmt.Printf("Add the following to the main.go file:\n")
@@ -115,7 +150,7 @@ func generateFeature() {
 
 func generateModels() {
 	genModelsFlags := flag.NewFlagSet("models", flag.ExitOnError)
-	modelsAdapter := genModelsFlags.String("adapter", "mysql", "Database adapter (mysql, postgres)")
+	modelsAdapter := genModelsFlags.String("adapter", "", "Database adapter (mysql, postgres)")
 	u := `Database connection string
 			postgres ex: <username>:<password>@tcp(<host>:<port>)/<dbname>
 			mysql ex: <username>:<password>@tcp(<host>:<port>)/<dbname`
@@ -123,6 +158,14 @@ func generateModels() {
 	modelsSchema := genModelsFlags.String("schema", "", "Database schema (postgres adapter only)")
 	args := os.Args[2:]
 	genModelsFlags.Parse(args)
+	if *modelsAdapter == "" || *modelsDsn == "" {
+		fmt.Println(genModelsUsageString())
+		os.Exit(1)
+	}
+	if *modelsAdapter == "postgres" && *modelsSchema == "" {
+		fmt.Println(genModelsUsageString())
+		os.Exit(1)
+	}
 	dsnArg := fmt.Sprintf("-dsn=%s", *modelsDsn)
 	adapterArg := fmt.Sprintf("-adapter=%s", *modelsAdapter)
 	var schemaArg string
@@ -143,6 +186,14 @@ func generateRepository() {
 	repoAdapter := generateRepo.String("adapter", "", "Database adapter (mysql, postgres)")
 	args := os.Args[2:]
 	generateRepo.Parse(args)
+	if *repoFeatName == "" || *repoModelName == "" || *repoDbName == "" || *repoAdapter == "" {
+		fmt.Println(genRepoUsageString())
+		os.Exit(1)
+	}
+	if *repoAdapter == "postgres" && *repoSchema == "" {
+		fmt.Println(genRepoUsageString())
+		os.Exit(1)
+	}
 	// find feature directory
 	projPath, err := os.Getwd()
 	if err != nil {
