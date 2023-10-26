@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"regexp"
 	"strings"
 )
 
@@ -17,7 +16,7 @@ type Route struct {
 type internalRoute struct {
 	method  string
 	handler http.Handler
-	pattern *regexp.Regexp
+	path    string
 }
 
 type Router struct {
@@ -27,62 +26,56 @@ type Router struct {
 type Middleware func(http.Handler) http.Handler
 
 func NewRouter(dbs map[string]*sql.DB, routes []Route) *Router {
-	r := &Router{
-		routes: make(map[string]internalRoute),
-	}
-
+	r := &Router{routes: make(map[string]internalRoute)}
 	for _, route := range routes {
-		pattern := pathToRegex(route.Path)
-		key := route.Method + " " + pattern.String()
-		r.routes[key] = internalRoute{
+		k := fmt.Sprintf("%s %s", route.Method, route.Path)
+		r.routes[k] = internalRoute{
 			handler: route.Handler(dbs),
-			pattern: pattern,
 			method:  route.Method,
+			path:    route.Path,
 		}
 	}
-
 	return r
 }
 
-func pathToRegex(path string) *regexp.Regexp {
-	// Directly replace the "{id}" placeholder with a regex pattern.
-	pattern := strings.Replace(path, "{id}", `([^/]+)`, -1)
-
-	// Ensure the pattern matches the entire path from start to finish.
-	regex := regexp.MustCompile("^" + pattern + "$")
-
-	return regex
-}
-
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	// Attempt direct route retrieval with method and path (fast path)
 	directKey := fmt.Sprintf("%s ^%s$", req.Method, req.URL.Path)
 	if routeInfo, ok := r.routes[directKey]; ok {
 		routeInfo.handler.ServeHTTP(w, req)
 		return
 	}
-
-	// Fallback to pattern matching (for parameterized routes)
-	for key, routeInfo := range r.routes {
-		// Check if the method matches before doing more expensive regex matching
-		methodAndPattern := strings.Split(key, " ")
-		if req.Method != methodAndPattern[0] {
-			continue
-		}
-
-		matches := routeInfo.pattern.FindStringSubmatch(req.URL.Path)
-		if matches == nil {
-			continue
-		}
-		id := matches[1]
+	lookupKey, id := keyAndID(req)
+	routeInfo, found := r.routes[lookupKey]
+	if !found {
+		http.Error(w, "404 page not found", http.StatusNotFound)
+		return
+	}
+	if id != "" {
 		ctx := context.WithValue(req.Context(), "id", id)
 		routeInfo.handler.ServeHTTP(w, req.WithContext(ctx))
 		return
-
 	}
+	routeInfo.handler.ServeHTTP(w, req)
+	return
 
-	// If no matching route was found, return a 404 error.
-	http.Error(w, "404 page not found", http.StatusNotFound)
+}
+
+func keyAndID(req *http.Request) (string, string) {
+	pathSegments := strings.Split(strings.Trim(req.URL.Path, "/"), "/") // Trim is used to remove any leading or trailing slashes
+	switch len(pathSegments) {
+	case 2: // Potentially /<resource_name>/{id}
+		resource := pathSegments[0]
+		reconstructedPath := fmt.Sprintf("/%s/{id}", resource)
+		return fmt.Sprintf("%s %s", req.Method, reconstructedPath), pathSegments[1]
+	case 3: // Potentially /<resource_name>/{id}/<action>
+		resource := pathSegments[0]
+		action := pathSegments[2]
+		reconstructedPath := fmt.Sprintf("/%s/{id}/%s", resource, action)
+		return fmt.Sprintf("%s %s", req.Method, reconstructedPath), pathSegments[1]
+	default:
+		// If the URL doesn't match expected structures, it could be a direct match or a 404.
+		return fmt.Sprintf("%s %s", req.Method, req.URL.Path), ""
+	}
 }
 
 func (r *Router) SetupRoutes(middleware ...Middleware) {
