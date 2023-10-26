@@ -77,23 +77,28 @@ func GenRepository() {
 		fmt.Println(genRepoUsageString())
 		os.Exit(1)
 	}
-	genRepoFile(r)
+	r.genRepoFile()
 	fmt.Printf("Repository has been generated for feature %s, with model: %s!\n", *r.featName, *r.modelName)
 }
 
-func genRepoFile(r *repo) {
+func (r *repo) genRepoFile() {
 	featPath := filepath.Join(r.projectPath, *r.featName)
-	repoFile, err := os.Create(filepath.Join(featPath, "repository.go"))
+	f := fmt.Sprintf("%s_%s_%s_repo.go",
+		strings.ToLower(*r.adapter),
+		strings.ToLower(*r.dbName),
+		strings.ToLower(*r.modelName),
+	)
+	repoFile, err := os.Create(filepath.Join(featPath, f))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 	defer repoFile.Close()
-	writeImports(repoFile, r)
-	writePartial(repoFile, r)
+	r.writeImports(repoFile)
+	r.writePartial(repoFile)
 }
 
-func writeImports(repoFile *os.File, r *repo) {
+func (r *repo) writeImports(repoFile *os.File) {
 	ps := strings.Split(r.projectPath, "/")
 	projName := ps[len(ps)-1]
 	imports := fmt.Sprintf("package %s\n\n", *r.featName)
@@ -119,7 +124,7 @@ func writeImports(repoFile *os.File, r *repo) {
 	}
 }
 
-func writePartial(repoFile *os.File, r *repo) {
+func (r *repo) writePartial(repoFile *os.File) {
 	repoPartial, err := repoPartialFile.ReadFile("repo_template/repo_partial.go")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
