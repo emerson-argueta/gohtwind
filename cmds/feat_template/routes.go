@@ -13,11 +13,11 @@ func SetupRoutes(dbs map[string]*sql.DB, middleware ...infra.Middleware) {
 		return http.StripPrefix("/static/{{FEATURE_NAME}}/", http.FileServer(http.Dir("./{{FEATURE_NAME}}/static/")))
 	}
 	routes := []infra.Route{
-		{Method: "GET", Handler: List, Path: "/{{FEATURE_NAME}}/"},
-		{Method: "POST", Handler: Create, Path: "/{{FEATURE_NAME}}/create"},
-		{Method: "GET", Handler: Read, Path: "/{{FEATURE_NAME}}/read"},
-		{Method: "PATCH", Handler: Update, Path: "/{{FEATURE_NAME}}/update"},
-		{Method: "DELETE", Handler: Delete, Path: "/{{FEATURE_NAME}}/delete"},
+		{Method: "GET", Handler: List, Path: "/{{FEATURE_NAME}}"},
+		{Method: "POST", Handler: Create, Path: "/{{FEATURE_NAME}}"},
+		{Method: "GET", Handler: Read, Path: "/{{FEATURE_NAME}}/{id}"},
+		{Method: "PATCH", Handler: Update, Path: "/{{FEATURE_NAME}}/{id}"},
+		{Method: "DELETE", Handler: Delete, Path: "/{{FEATURE_NAME}}/{id}"},
 		{Method: "GET", Handler: shan, Path: "/static/{{FEATURE_NAME}}/"},
 	}
 	feature_router = infra.NewRouter(dbs, routes)
