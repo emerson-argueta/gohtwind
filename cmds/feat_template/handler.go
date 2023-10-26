@@ -21,13 +21,11 @@ func List(dbs map[string]*sql.DB) http.Handler {
 // Create handles the creation of a new item
 func Create(dbs map[string]*sql.DB) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        if r.Method == http.MethodPost {
-            // TODO: Handle item creation logic
+        // TODO: Handle item creation logic
 
-            // Redirect to the list view or display a success message
-            http.Redirect(w, r, "/{{FEATURE_NAME}}/list", http.StatusSeeOther)
-            return
-        }
+        // Redirect to the list view or display a success message
+        http.Redirect(w, r, "/{{FEATURE_NAME}}", http.StatusSeeOther)
+        return
     })
 }
 
@@ -47,25 +45,21 @@ func Read(dbs map[string]*sql.DB) http.Handler {
 // Update handles updating an existing item
 func Update(dbs map[string]*sql.DB) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        if r.Method == http.MethodPatch {
-            // TODO: Handle item update logic
+        // TODO: Handle item update logic
 
-            // Redirect to the list view or display a success message
-            http.Redirect(w, r, "/{{FEATURE_NAME}}/list", http.StatusSeeOther)
-            return
-        }
+        // Redirect to the list view or display a success message
+        http.Redirect(w, r, "/{{FEATURE_NAME}}", http.StatusSeeOther)
+        return
     })
 }
 
 // Delete handles deleting an item
 func Delete(dbs map[string]*sql.DB) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        if r.Method == http.MethodPost {
-            // TODO: Handle item deletion logic
+        // TODO: Handle item deletion logic
 
-            // Redirect to the list view or display a success message
-            http.Redirect(w, r, "/{{FEATURE_NAME}}/list", http.StatusSeeOther)
-            return
-        }
+        // Redirect to the list view or display a success message
+        http.Redirect(w, r, "/{{FEATURE_NAME}}", http.StatusSeeOther)
+        return
     })
 }
