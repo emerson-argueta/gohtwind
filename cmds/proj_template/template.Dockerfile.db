@@ -1,0 +1,8 @@
+# Create a mysql database with database name "dev" with entrypoint to seed the database
+# with the data from the file "dev.sql" in the same directory as the Dockerfile
+# The database will be created with the user "root" and password "root"
+FROM mysql:latest
+ENV MYSQL_ROOT_PASSWORD=root
+ENV MYSQL_DATABASE=dev
+COPY dev.sql /docker-entrypoint-initdb.d/
+EXPOSE 3306

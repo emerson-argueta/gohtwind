@@ -42,6 +42,7 @@ Gohtwind is an opinionated and lightweight full-stack framework designed for rap
 To get started with Gohtwind:
 
 1. Ensure you have Go installed on your machine.
+* Optional: Ensure you have Docker installed on your machine. (For development database)
 2. Clone/download the Gohtwind repository.
 3. Navigate to the Gohtwind directory and run:
 
@@ -55,54 +56,87 @@ Now, you can use the `gohtwind` command from anywhere in your terminal!
 ## Quick Start
 1. Create a new Gohtwind project:
 ```bash
-gohtwind name your_project_name
+# gohtwind name your_project_name
+# ex:
+gohtwind new town
 ```
 2. Navigate to your project directory:
 ```bash
-cd your_project_name
+# cd your_project_name 
+# ex:
+cd town
 ```
 3. Create a page (a.k.a. feature) within your project:
 ```bash
-gohtwind gen-feature [feature_name]
+# gohtwind gen-feature [feature_name]
+# ex:
+gohtwind gen-feature market 
 ```
 4. Add feature routes to the `main.go` in the root of your project directory:
 ```go
 package main
 
+// the ide will automatically import the packages for you
+// if not, you can manually import them like so:
+import(
+  // ...
+  // "<project_name>/infra"
+  "town/infra"
+  // "<project_name>/<feature_name>"
+  "town/market"
+  // ...
+)
 
 func main() {
-	// ...
-    http.Handle("/static/", infra.LoggingMiddleware(http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/")))))
-    // replace feature_name with the name of your feature 
-    feature_name.SetupRoutes(dbs, infra.LoggingMiddleware)
-	// you can add more features here
+  // ...
+  http.Handle("/static/", infra.LoggingMiddleware(http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/")))))
+  /**
+    Replace feature_name with the name of your feature like so:
+    feature_name_1.SetupRoutes(dbs, infra.LoggingMiddleware)
+            ...
     feature_name_2.SetupRoutes(dbs, infra.LoggingMiddleware)
-	// ...
+            ...
     feature_name_n.SetupRoutes(dbs, infra.LoggingMiddleware)
+     **/
+  // ex: 
+  market.SetupRoutes(dbs, infra.LoggingMiddleware)
 
-    log.Printf("Server started on :%s\n", port)
-    err = http.ListenAndServe(":"+port, nil)
-    if err != nil {
-        log.Fatal(err)
-    }
+  log.Printf("Server started on :%s\n", port)
+  err = http.ListenAndServe(":"+port, nil)
+  if err != nil {
+    log.Fatal(err)
+  }
 }
 ````
+5. Optional: Run containerized database for development:
+```bash
+docker build -t gohtwind-db -f Dockerfile.db .
+docker run -d -p 3306:3306 --name gohtwind-db gohtwind-db
+```
 5. Generate sql models using:
 ```bash
-gohtwind gen-models -adapter=mysql -dsn="<username>:<password>@tcp(<host>:<port>)/<dbname>"
+# gohtwind gen-models -adapter=mysql -dsn="<username>:<password>@tcp(<host>:<port>)/<dbname>"
 # or
-gohtwind gen-models -adapter=postgres -dsn="postgresql://<user>:<password>@<host>:<port>/<dbname>?sslmode=disable -schema=<schema>"
+# gohtwind gen-models -adapter=postgres -dsn="postgresql://<user>:<password>@<host>:<port>/<dbname>?sslmode=disable -schema=<schema>"
+# using the containerized database
+gohtwind gen-models -adapter=mysql -dsn="root:root@tcp(localhost:3306)/dev"
 ```
 6. Generate a repository file for the feature:
 ```bash
 # Make sure that the model_name is the same as the generated model name (Usually the table name in TitleCase) 
-gohtwind gen-repository -feature-name=<feature_name> -model-name=<model_name> -db-name-or-schema=<dbname_or_schema> -adapter=<mysql | postgres>
+# gohtwind gen-repository -feature-name=<feature_name> -model-name=<model_name> -db-name=<dbname> -adapter=<mysql | postgres> -schema=<schema postgres only>
+# using the model from containerized database
+gohtwind gen-repository -feature-name=market -model-name=Products -db-name=dev -adapter=mysql
 ```
-7. Start the development server:
+7. Copy the example.env file and rename it to .env:
+```bash
+cp example.env .env
+```
+8. Start the development server:
 ```bash
 ./dev-run.sh
 ```
-8. Start developing your application!
+9. Start developing your application!
 ## Directory Structure
 ```
 
@@ -214,14 +248,15 @@ gohtwind gen-models -adapter=<mysql | postgres> -dsn=<dsn> -schema=<schema>
 * The `-schema` flag specifies the database schema to generate models for. (Only applicable for Postgres)
 3. To generate repository boilerplate code, use the following gohtwind command:
 ```bash
-gohtwind gen-repository -feature-name=<feature_name> -model-name=<model_name> -db-name-or-schema=<dbname_or_schema> -adapter=<mysql | postgres>
+gohtwind gen-repository -feature-name=<feature_name> -model-name=<model_name> -db-name=<dbname> -adapter=<mysql | postgres> -schema=<schema postgres only>
 ```
 * This will generate a repository file for the specified feature and model.
 * The repository file contains boilerplate code for basic CRUD operations.
 * The repository file is used by the feature's handler to interact with the database.
 * The `-feature-name` flag specifies the name of the feature the repository is for.
 * The `-model-name` flag specifies the name of the model (sql table) the repository is for.
-* The `-db-name-or-schema` flag specifies the name of the database (mysql) or schema (postgres) the model is in.
+* The `-db-name` flag specifies the name of the database
+* The `-schema` schema (postgres only) the model is in.
 * The `-adapter` flag specifies the database adapter to use. Currently, only MySQL and Postgres is supported.
 ```bash
 
