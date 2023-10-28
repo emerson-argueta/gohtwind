@@ -1,5 +1,5 @@
-{{ template "base.gohtml" . }}
-<!-- list.gohtml -->
+{{ template "base.html" . }}
+<!-- list.html -->
 {{ define "content" }}
 <div class="flex flex-col space-y-2">
     <h1 class="mb-4">{{FEATURE_NAME}}</h1>
@@ -9,20 +9,20 @@
             class="btn-blue ml-auto"
     >Add New</button>
     <dialog id="createDialog" class="w-full h-full">
-        {{ template "create.gohtml" . }}
+        {{ template "create.html" . }}
     </dialog>
 
     <ul role="list" class="divide-y divide-gray-100">
         {{range $i, $v := .Items}}
         {{ $im := iterMap $i $v }}
         <dialog id="readDialog{{$i}}">
-            {{ template "read.gohtml" $im }}
+            {{ template "read.html" $im }}
         </dialog>
         <dialog id="updateDialog{{$i}}">
-            {{ template "update.gohtml" $im }}
+            {{ template "update.html" $im }}
         </dialog>
         <dialog id="deleteDialog{{$i}}">
-            {{ template "delete.gohtml" $im }}
+            {{ template "delete.html" $im }}
         </dialog>
         <li class="flex justify-between gap-x-6 py-5">
             <div class="flex min-w-0 gap-x-4">

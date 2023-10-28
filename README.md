@@ -164,7 +164,7 @@ cp example.env .env
 
 |   |-- shared/
 
-|   |-- base.gohtml 
+|   |-- base.html 
 
 |-- frontend/
 
@@ -200,15 +200,15 @@ cp example.env .env
 
 |   |-- templates/
 
-|       |-- create.gohtml
+|       |-- create.html
 
-|       |-- read.gohtml
+|       |-- read.html
 
-|       |-- update.gohtml
+|       |-- update.html
 
-|       |-- delete.gohtml
+|       |-- delete.html
 
-|       |-- list.gohtml
+|       |-- list.html
 
   
 
