@@ -26,7 +26,7 @@ func NewView(basePath string, fp string) *View {
 		panic(err)
 	}
 	// Parse the feature templates and associate them with the base layout.
-	templates, err := base.Funcs(template.FuncMap{"iterMap": iterMap}).ParseGlob(filepath.Join(fp, "*.html"))
+	templates, err := base.Funcs(template.FuncMap{"iterMap": iterMap}).ParseGlob(filepath.Join(fp, "*.gohtml"))
 	if err != nil {
 		panic(err)
 	}
