@@ -1,14 +1,13 @@
-<html class="h-full" lang="en">
+<html class="h-full bg-gray-50" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Town</title>
     <link rel="stylesheet" type="text/css" href="/static/css/output.css">
     <script src="/static/js/htmx.min.js"></script>
     <script src="/static/js/util.js"></script>
 </head>
 <body class="h-full">
 <div>
-    <!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
     <div id='mobile-sidebar' class="relative z-50 xl:hidden" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-gray-900/80"></div>
         <div class="fixed inset-0 flex">
@@ -21,15 +20,13 @@
                         </svg>
                     </button>
                 </div>
-                <!-- Sidebar component -->
                 {{ template "templates/sidebar.html" . }}
             </div>
         </div>
     </div>
 
-    <!-- Static sidebar for desktop -->
+    <!-- Desktop sidebar -->
     <div class="hidden xl:fixed xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col">
-        <!-- Sidebar component -->
         {{ template "templates/sidebar.html" . }}
     </div>
 
