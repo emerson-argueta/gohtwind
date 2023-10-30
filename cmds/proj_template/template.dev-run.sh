@@ -7,7 +7,7 @@ start_go_watcher() {
     # Install air for live-reloading
     go install github.com/cosmtrek/air@latest
     # start air
-    air
+    air -c .air.toml
 }
 
 # Function to start the CSS watcher

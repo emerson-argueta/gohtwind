@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-const basePath = "templates/base.html"
+const basePath = "templates"
 
 var fp = filepath.Join("{{FEATURE_NAME}}", "templates")
 var feature_view *infra.View

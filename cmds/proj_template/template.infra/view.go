@@ -2,7 +2,9 @@ package infra
 
 import (
 	"net/http"
+	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
@@ -20,22 +22,56 @@ func iterMap(index int, value interface{}) map[string]interface{} {
 }
 
 func NewView(basePath string, fp string) *View {
-	// Parse the base layout.
-	base, err := template.ParseFiles(basePath)
+	allTemplatePaths, err := collectAllTemplatePaths(basePath, fp)
 	if err != nil {
 		panic(err)
 	}
-	// Parse the feature templates and associate them with the base layout.
-	templates, err := base.Funcs(template.FuncMap{"iterMap": iterMap}).ParseGlob(filepath.Join(fp, "*.html"))
-	if err != nil {
-		panic(err)
+	templates := template.New("").Funcs(template.FuncMap{"iterMap": iterMap})
+	for _, path := range allTemplatePaths {
+		content, err := os.ReadFile(path)
+		if err != nil {
+			panic(err)
+		}
+		_, err = templates.New(filepath.ToSlash(path)).Parse(string(content))
+		if err != nil {
+			panic(err)
+		}
 	}
+
 	return &View{
 		basePath:  basePath,
 		fp:        fp,
 		templates: templates,
 	}
 }
+
+func collectAllTemplatePaths(paths ...string) ([]string, error) {
+	var allTemplatePaths []string
+	for _, path := range paths {
+		templatePaths, err := collectTemplatePaths(path, ".html")
+		if err != nil {
+			return nil, err
+		}
+		allTemplatePaths = append(allTemplatePaths, templatePaths...)
+	}
+	return allTemplatePaths, nil
+}
+
+func collectTemplatePaths(root string, ext string) ([]string, error) {
+	var templatePaths []string
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(path, ext) {
+			templatePath := filepath.ToSlash(path)
+			templatePaths = append(templatePaths, templatePath)
+		}
+		return nil
+	})
+	return templatePaths, err
+}
+
 func (v *View) RenderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 	err := v.templates.ExecuteTemplate(w, tmpl, data)
 	if err != nil {

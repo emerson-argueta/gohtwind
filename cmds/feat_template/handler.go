@@ -12,7 +12,7 @@ func List(dbs map[string]*sql.DB) http.Handler {
         items := []string{"test0", "test1", "test2"} // This is a placeholder. Replace 'Item' with your actual data structure.
 
         // Render the list view with the fetched items
-        renderTemplate(w, "list.html", map[string]interface{}{
+        renderTemplate(w, "{{FEATURE_NAME}}/templates/list.html", map[string]interface{}{
             "Items": items, // Pass the items as data to the template
         })
     })
@@ -36,7 +36,7 @@ func Read(dbs map[string]*sql.DB) http.Handler {
         item := "test" // This is a placeholder. Replace 'Item' with your actual data structure.
 
         // Render the read view with the fetched item details
-        renderPartialTemplate(w, "read.html", map[string]interface{}{
+        renderPartialTemplate(w, "{{FEATURE_NAME}}/templates/read.html", map[string]interface{}{
             "Item": item, // Pass the item as data to the template
         })
     })
