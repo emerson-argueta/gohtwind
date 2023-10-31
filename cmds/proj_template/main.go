@@ -30,10 +30,7 @@ func main() {
 				log.Fatal(err)
 			}
 		}(db)
-		err = db.Ping()
-		if err != nil {
-			log.Fatal(err)
-		}
+		infra.CheckDatabaseConnection(db)
 	}
 	http.Handle("/static/", infra.LoggingMiddleware(http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/")))))
 	// TODO: Setup routes and middleware
