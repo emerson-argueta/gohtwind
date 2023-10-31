@@ -1,11 +1,9 @@
 
-func Create{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m model.{{MODEL_NAME}}) {
+func Create{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m model.{{MODEL_NAME}}) error {
 	stmt := {{MODEL_NAME}}.INSERT().VALUES(m)
 	log.Println(stmt.DebugSql())
 	_, err := stmt.Exec(dbs["{{DB_NAME}}"])
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
 }
 
 func All{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, pg *infra.Pagination) ([]struct{ model.{{MODEL_NAME}} }, *infra.Pagination) {
@@ -15,7 +13,7 @@ func All{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, pg *infra.Pagination) ([]stru
 		log.Println(stmt.DebugSql())
 		err := stmt.Query(dbs["{{DB_NAME}}"], &dest)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 		pg = infra.NewPagination(1, 10, dest.Count)
 	}
@@ -27,7 +25,7 @@ func All{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, pg *infra.Pagination) ([]stru
 	log.Println(stmt.DebugSql())
 	err := stmt.Query(dbs["{{DB_NAME}}"], &dest)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	return dest, pg
 }
@@ -38,30 +36,26 @@ func Fetch{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, id int64) model.{{MODEL_NAM
 	log.Println(stmt.DebugSql())
 	err := stmt.Query(dbs["{{DB_NAME}}"], &dest)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	return dest
 }
 
-func Update{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m model.{{MODEL_NAME}}) {
+func Update{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m model.{{MODEL_NAME}}) error {
 	stmt := {{MODEL_NAME}}.
 		UPDATE({{MODEL_NAME}}.AllColumns).
 		MODEL(m).
 		WHERE({{MODEL_NAME}}.ID.EQ(Int(m.ID)))
 	log.Println(stmt.DebugSql())
 	_, err := stmt.Exec(dbs["{{DB_NAME}}"])
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
 }
 
-func Delete{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, id int64) {
+func Delete{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, id int64) error {
 	stmt := {{MODEL_NAME}}.
 		DELETE().
 		WHERE({{MODEL_NAME}}.ID.EQ(Int(id)))
 	log.Println(stmt.DebugSql())
 	_, err := stmt.Exec(dbs["{{DB_NAME}}"])
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
 }
