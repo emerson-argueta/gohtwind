@@ -5,10 +5,10 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
-	"gopkg.in/yaml.v3"
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 type Database struct {
@@ -48,6 +48,22 @@ func NewDBsConfig() *DBsConfig {
 	}
 
 	return &cfg
+}
+
+func CheckDatabaseConnection(db *sql.DB) {
+	maxRetries := 5
+	retryInterval := 5 * time.Second
+	var err error
+	for i := 0; i < maxRetries; i++ {
+		err = db.Ping()
+		if err == nil {
+			break
+		}
+		time.Sleep(retryInterval)
+	}
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func parseConfigTemplate(template string) (string, error) {
