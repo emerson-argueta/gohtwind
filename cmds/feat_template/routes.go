@@ -9,17 +9,16 @@ import (
 var feature_router *infra.Router
 
 func SetupRoutes(dbs map[string]*sql.DB, middleware ...infra.Middleware) {
-	var shan = func(dbs map[string]*sql.DB) http.Handler {
-		return http.StripPrefix("/static/{{FEATURE_NAME}}/", http.FileServer(http.Dir("./{{FEATURE_NAME}}/static/")))
-	}
+	handle := &Handle{dbs: dbs}
+	shan := http.StripPrefix("/static/{{FEATURE_NAME}}/", http.FileServer(http.Dir("./{{FEATURE_NAME}}/static/")))
 	routes := []infra.Route{
-		{Method: "GET", Handler: List, Path: "/{{FEATURE_NAME}}"},
-		{Method: "POST", Handler: Create, Path: "/{{FEATURE_NAME}}"},
-		{Method: "GET", Handler: Read, Path: "/{{FEATURE_NAME}}/{id}"},
-		{Method: "PATCH", Handler: Update, Path: "/{{FEATURE_NAME}}/{id}"},
-		{Method: "DELETE", Handler: Delete, Path: "/{{FEATURE_NAME}}/{id}"},
-		{Method: "GET", Handler: shan, Path: "/static/{{FEATURE_NAME}}/"},
+		{Method: "GET", Handler: handle.List, Path: "/{{FEATURE_NAME}}"},
+		{Method: "POST", Handler: handle.Create, Path: "/{{FEATURE_NAME}}"},
+		{Method: "GET", Handler: handle.Read, Path: "/{{FEATURE_NAME}}/{id}"},
+		{Method: "PATCH", Handler: handle.Update, Path: "/{{FEATURE_NAME}}/{id}"},
+		{Method: "DELETE", Handler: handle.Delete, Path: "/{{FEATURE_NAME}}/{id}"},
+		{Method: "GET", Handler: shan.ServeHTTP, Path: "/static/{{FEATURE_NAME}}/"},
 	}
-	feature_router = infra.NewRouter(dbs, routes)
+	feature_router = infra.NewRouter(routes)
 	feature_router.SetupRoutes(middleware...)
 }

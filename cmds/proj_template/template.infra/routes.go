@@ -2,7 +2,6 @@ package infra
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
@@ -10,7 +9,7 @@ import (
 
 type Route struct {
 	Method  string
-	Handler func(dbs map[string]*sql.DB) http.Handler
+	Handler http.HandlerFunc
 	Path    string
 }
 type internalRoute struct {
@@ -25,12 +24,12 @@ type Router struct {
 
 type Middleware func(http.Handler) http.Handler
 
-func NewRouter(dbs map[string]*sql.DB, routes []Route) *Router {
+func NewRouter(routes []Route) *Router {
 	r := &Router{routes: make(map[string]internalRoute)}
 	for _, route := range routes {
 		k := fmt.Sprintf("%s %s", route.Method, route.Path)
 		r.routes[k] = internalRoute{
-			handler: route.Handler(dbs),
+			handler: route.Handler,
 			method:  route.Method,
 			path:    route.Path,
 		}

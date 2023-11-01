@@ -104,7 +104,7 @@ func (v *View) RenderPartialTemplate(w http.ResponseWriter, tmpl string, data in
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	partial, err = partial.New("").ParseFiles(filepath.Join(v.fp, tmpl))
+	partial, err = partial.New("").ParseFiles(tmpl)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
