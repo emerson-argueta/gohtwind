@@ -15,12 +15,6 @@ type View struct {
 	fp        string
 }
 
-func iterMap(index int, value interface{}) map[string]interface{} {
-	return map[string]interface{}{
-		"Index": index,
-		"Value": value,
-	}
-}
 func dictFunc(values ...interface{}) (map[string]interface{}, error) {
 	if len(values)%2 != 0 {
 		return nil, fmt.Errorf("invalid dict call")
@@ -44,7 +38,7 @@ func NewView(basePath string, fp string) *View {
 	if err != nil {
 		panic(err)
 	}
-	templates := template.New("").Funcs(template.FuncMap{"iterMap": iterMap, "dict": dictFunc, "slice": sliceFunc})
+	templates := template.New("").Funcs(template.FuncMap{"dict": dictFunc, "slice": sliceFunc})
 	for _, path := range allTemplatePaths {
 		content, err := os.ReadFile(path)
 		if err != nil {
