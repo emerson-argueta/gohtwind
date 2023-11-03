@@ -27,11 +27,6 @@ func sliceFunc(values ...interface{}) []interface{} {
 }
 
 func formFunc(model interface{}, action string) template.HTML {
-	// creates a html form based on the model
-	// the fields of the model must be tagged with "form"
-	// the action is the url to post the form to
-	// the form is returned as a template.HTML
-	// do code now
 	modelType := reflect.TypeOf(model).Field(0).Type
 	modelValue := reflect.ValueOf(model).Field(0)
 	form := "<form action=\"" + action + "\" method=\"POST\">"
@@ -39,13 +34,9 @@ func formFunc(model interface{}, action string) template.HTML {
 		field := modelType.Field(i)
 		fmt.Println("model value:", field)
 		fmt.Println("field:", field)
-		tag := field.Tag.Get("form")
-		if tag == "-" {
-			continue
-		}
 		value := getValue(modelValue.Field(i))
-		form += "<label>" + tag + "</label>"
-		form += "<input type=\"text\" name=\"" + tag + "\" value=\"" + value + "\">"
+		form += "<label>" + field.Name + "</label>"
+		form += "<input type=\"text\" name=\"" + field.Name + "\" value=\"" + value + "\">"
 	}
 	form += "<input type=\"submit\" value=\"Submit\">"
 	form += "</form>"
