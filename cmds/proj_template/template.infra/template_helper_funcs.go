@@ -30,6 +30,9 @@ func formFunc(model interface{}, action string) template.HTML {
 	modelType := reflect.TypeOf(model).Field(0).Type
 	modelValue := reflect.ValueOf(model).Field(0)
 	form := "<form action=\"" + action + "\" method=\"POST\">"
+	if modelValue.FieldByName("ID").IsValid() && modelValue.FieldByName("ID").Int() != 0 {
+		form += `<input type="hidden" name="_method" value="PATCH">`
+	}
 	for i := 0; i < modelType.NumField(); i++ {
 		field := modelType.Field(i)
 		value := getValue(modelValue.Field(i))
