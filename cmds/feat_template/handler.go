@@ -1,11 +1,9 @@
-package
-
-import "fmt"
-{{FEATURE_NAME}}
+package {{FEATURE_NAME}}
 
 import (
     "database/sql"
     "net/http"
+    "fmt"
 )
 
 type Handle struct {
