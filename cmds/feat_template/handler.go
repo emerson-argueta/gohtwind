@@ -1,4 +1,7 @@
-package {{FEATURE_NAME}}
+package
+
+import "fmt"
+{{FEATURE_NAME}}
 
 import (
     "database/sql"
@@ -31,6 +34,8 @@ func (h *Handle) Create(w http.ResponseWriter, r *http.Request) {
 
 // Read displays details of a specific item
 func (h *Handle) Read(w http.ResponseWriter, r *http.Request) {
+    idStr := r.Context().Value("id").(string)
+    fmt.Println(idStr)
     // TODO: Fetch item details based on an identifier from 'r', then put it in 'item'
     item := "test" // This is a placeholder. Replace 'Item' with your actual data structure.
 
@@ -42,6 +47,8 @@ func (h *Handle) Read(w http.ResponseWriter, r *http.Request) {
 
 // Update handles updating an existing item
 func (h *Handle) Update(w http.ResponseWriter, r *http.Request) {
+    idStr := r.Context().Value("id").(string)
+    fmt.Println(idStr)
     // TODO: Handle item update logic
 
     // Redirect to the list view or display a success message
@@ -51,6 +58,8 @@ func (h *Handle) Update(w http.ResponseWriter, r *http.Request) {
 
 // Delete handles deleting an item
 func (h *Handle) Delete(w http.ResponseWriter, r *http.Request) {
+    idStr := r.Context().Value("id").(string)
+    fmt.Println(idStr)
     // TODO: Handle item deletion logic
 
     // Redirect to the list view or display a success message
