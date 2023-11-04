@@ -114,7 +114,7 @@ func (r *repo) writeImports(repoFile *os.File) {
 	if *r.adapter == "postgres" {
 		imports = fmt.Sprintf("%s\t. \"github.com/go-jet/jet/v2/postgres\"\n", imports)
 		imports = fmt.Sprintf("%s\t\"%s/.gen/%s/%s/model\"\n", imports, projName, *r.dbName, *r.schema)
-		imports = fmt.Sprintf("%s\t. \"%s/.gen/%s/%s/table\"\n", imports, projName, *r.dbName, *r.schema)
+		imports = fmt.Sprintf("%s\t. jet \"%s/.gen/%s/%s/table\"\n", imports, projName, *r.dbName, *r.schema)
 	}
 	if *r.adapter == "mysql" {
 		imports = fmt.Sprintf("%s\t. \"github.com/go-jet/jet/v2/mysql\"\n", imports)
