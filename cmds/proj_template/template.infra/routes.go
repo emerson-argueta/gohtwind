@@ -38,7 +38,11 @@ func NewRouter(routes []Route) *Router {
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	methodOverride := req.FormValue("_method")
 	directKey := fmt.Sprintf("%s ^%s$", req.Method, req.URL.Path)
+	if methodOverride == "PATCH" {
+		directKey = fmt.Sprintf("%s ^%s$", "PATCH", req.URL.Path)
+	}
 	if routeInfo, ok := r.routes[directKey]; ok {
 		routeInfo.handler.ServeHTTP(w, req)
 		return
@@ -60,20 +64,25 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func keyAndID(req *http.Request) (string, string) {
+	method := req.Method
+	methodOverride := req.FormValue("_method")
+	if methodOverride == "PATCH" {
+		method = "PATCH"
+	}
 	pathSegments := strings.Split(strings.Trim(req.URL.Path, "/"), "/") // Trim is used to remove any leading or trailing slashes
 	switch len(pathSegments) {
 	case 2: // Potentially /<resource_name>/{id}
 		resource := pathSegments[0]
 		reconstructedPath := fmt.Sprintf("/%s/{id}", resource)
-		return fmt.Sprintf("%s %s", req.Method, reconstructedPath), pathSegments[1]
+		return fmt.Sprintf("%s %s", method, reconstructedPath), pathSegments[1]
 	case 3: // Potentially /<resource_name>/{id}/<action>
 		resource := pathSegments[0]
 		action := pathSegments[2]
 		reconstructedPath := fmt.Sprintf("/%s/{id}/%s", resource, action)
-		return fmt.Sprintf("%s %s", req.Method, reconstructedPath), pathSegments[1]
+		return fmt.Sprintf("%s %s", method, reconstructedPath), pathSegments[1]
 	default:
 		// If the URL doesn't match expected structures, it could be a direct match or a 404.
-		return fmt.Sprintf("%s %s", req.Method, req.URL.Path), ""
+		return fmt.Sprintf("%s %s", method, req.URL.Path), ""
 	}
 }
 
