@@ -42,7 +42,7 @@ func formFunc(model interface{}, action string, method string) template.HTML {
 	}
 	form += fmt.Sprintf(`<input type="hidden" name="csrf_token" value="%s">`, tk)
 	for i := 0; i < modelType.NumField(); i++ {
-		name := modelType.Field(i).Name
+		name := modelType.Field(i).Tag.Get("form")
 		value := getValue(modelValue.Field(i))
 		form += fmt.Sprintf("<label>%s</label>", name)
 		form += fmt.Sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">", name, value)
