@@ -1,8 +1,11 @@
 package infra
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"html/template"
+	"log"
 	"reflect"
 	"time"
 )
@@ -26,23 +29,37 @@ func sliceFunc(values ...interface{}) []interface{} {
 	return values
 }
 
-func formFunc(model interface{}, action string) template.HTML {
+func formFunc(model interface{}, action string, method string) template.HTML {
 	modelType := reflect.TypeOf(model).Field(0).Type
 	modelValue := reflect.ValueOf(model).Field(0)
-	form := "<form action=\"" + action + "\" method=\"POST\">"
-	if modelValue.FieldByName("ID").IsValid() && modelValue.FieldByName("ID").Int() != 0 {
-		form += `<input type="hidden" name="_method" value="PATCH">`
+	form := fmt.Sprintf("<form action=\"%s\" method=\"%s\">", action, method)
+	if method == "PATCH" {
+		form += fmt.Sprintf(`<input type="hidden" name="_method" value="%s">`, method)
 	}
+	tk, err := csrfToken()
+	if err != nil {
+		log.Printf("error generating csrf token: %v", err)
+	}
+	form += fmt.Sprintf(`<input type="hidden" name="csrf_token" value="%s">`, tk)
 	for i := 0; i < modelType.NumField(); i++ {
-		field := modelType.Field(i)
+		name := modelType.Field(i).Name
 		value := getValue(modelValue.Field(i))
-		form += "<label>" + field.Name + "</label>"
-		form += "<input type=\"text\" name=\"" + field.Name + "\" value=\"" + value + "\">"
+		form += fmt.Sprintf("<label>%s</label>", name)
+		form += fmt.Sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">", name, value)
 	}
 	form += "<input type=\"submit\" value=\"Submit\">"
 	form += "</form>"
 	return template.HTML(form)
 
+}
+
+func csrfToken() (string, error) {
+	bytes := make([]byte, 32)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(bytes), nil
 }
 
 func getValue(value reflect.Value) string {
