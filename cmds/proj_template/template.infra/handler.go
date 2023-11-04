@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
+	"time"
 )
 
 func UnmarshalForm(r *http.Request, dst interface{}) error {
@@ -15,12 +16,7 @@ func UnmarshalForm(r *http.Request, dst interface{}) error {
 	val := reflect.ValueOf(dst).Elem()
 	typ := val.Type()
 	for i := 0; i < val.NumField(); i++ {
-		tag := typ.Field(i).Tag.Get("form")
-		if tag == "-" {
-			continue
-		}
-
-		formVal := r.FormValue(tag)
+		formVal := r.FormValue(typ.Field(i).Name)
 		if formVal == "" {
 			continue
 		}
@@ -41,6 +37,15 @@ func UnmarshalForm(r *http.Request, dst interface{}) error {
 				return err
 			}
 			field.SetFloat(floatVal)
+		case reflect.Struct:
+			if field.Type().String() == "time.Time" {
+				timeVal := field.Interface().(time.Time)
+				timeVal, err = time.Parse("2006-01-02T15:04", formVal)
+				if err != nil {
+					return err
+				}
+				field.Set(reflect.ValueOf(timeVal))
+			}
 		}
 	}
 	return nil
