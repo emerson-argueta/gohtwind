@@ -32,8 +32,6 @@ func formFunc(model interface{}, action string) template.HTML {
 	form := "<form action=\"" + action + "\" method=\"POST\">"
 	for i := 0; i < modelType.NumField(); i++ {
 		field := modelType.Field(i)
-		fmt.Println("model value:", field)
-		fmt.Println("field:", field)
 		value := getValue(modelValue.Field(i))
 		form += "<label>" + field.Name + "</label>"
 		form += "<input type=\"text\" name=\"" + field.Name + "\" value=\"" + value + "\">"
