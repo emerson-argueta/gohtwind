@@ -9,6 +9,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -98,8 +99,14 @@ func (r *repo) genRepoFile() {
 	}
 	defer repoFile.Close()
 	r.writeImports(repoFile)
-	r.writeDto(repoFile)
 	r.writePartial(repoFile)
+	// if dto file exists, append to it otherwise create it
+	dtoFile, err := os.OpenFile(filepath.Join(featPath, "dtos.go"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	r.writeDto(dtoFile)
 }
 
 func (r *repo) writeImports(repoFile *os.File) {
@@ -108,18 +115,15 @@ func (r *repo) writeImports(repoFile *os.File) {
 	imports := fmt.Sprintf("package %s\n\n", *r.featName)
 	imports = fmt.Sprintf("%simport(\n", imports)
 	imports = fmt.Sprintf("%s\t\"database/sql\"\n", imports)
-	imports = fmt.Sprintf("%s\t\"time\"\n", imports)
 	imports = fmt.Sprintf("%s\t\"log\"\n", imports)
 	imports = fmt.Sprintf("%s\t\"%s/infra\"\n", imports, projName)
 	if *r.adapter == "postgres" {
 		imports = fmt.Sprintf("%s\t. \"github.com/go-jet/jet/v2/postgres\"\n", imports)
-		imports = fmt.Sprintf("%s\t\"%s/.gen/%s/%s/model\"\n", imports, projName, *r.dbName, *r.schema)
-		imports = fmt.Sprintf("%s\t. jet \"%s/.gen/%s/%s/table\"\n", imports, projName, *r.dbName, *r.schema)
+		imports = fmt.Sprintf("%s\tjet \"%s/.gen/%s/%s/table\"\n", imports, projName, *r.dbName, *r.schema)
 	}
 	if *r.adapter == "mysql" {
 		imports = fmt.Sprintf("%s\t. \"github.com/go-jet/jet/v2/mysql\"\n", imports)
-		imports = fmt.Sprintf("%s\t\"%s/.gen/%s/model\"\n", imports, projName, *r.dbName)
-		imports = fmt.Sprintf("%s\t. \"%s/.gen/%s/table\"\n", imports, projName, *r.dbName)
+		imports = fmt.Sprintf("%s\tjet \"%s/.gen/%s/table\"\n", imports, projName, *r.dbName)
 	}
 	imports = fmt.Sprintf("%s)\n\n", imports)
 	_, err := repoFile.WriteString(imports)
@@ -129,7 +133,7 @@ func (r *repo) writeImports(repoFile *os.File) {
 	}
 }
 
-func (r *repo) writeDto(repoFile *os.File) {
+func (r *repo) writeDto(dtoFile *os.File) {
 	fp := filepath.Join(r.projectPath, ".gen", *r.dbName, "model", fmt.Sprintf("%s.go", *r.modelName))
 	fields, err := getStructFields(fp, *r.modelName)
 	fmt.Println(fields)
@@ -138,10 +142,26 @@ func (r *repo) writeDto(repoFile *os.File) {
 		return
 	}
 	tags := []string{"form", "json"}
-	ns := fmt.Sprintf("%sDto", *r.modelName)
+	ns := fmt.Sprintf("%s", *r.modelName)
+	imports := fmt.Sprintf("package %s\n\n", *r.featName)
+	imports = fmt.Sprintf("%simport(\n", imports)
+	imports = fmt.Sprintf("%s\t\"time\"\n", imports)
+	imports = fmt.Sprintf("%s)\n\n", imports)
+	// write imports if dtos.go is empty
+	fi, err := dtoFile.Stat()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	if fi.Size() == 0 {
+		_, err = dtoFile.WriteString(imports)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	}
 	newStruct := generateStructWithTags(ns, fields, tags)
-	fmt.Println(newStruct)
-	_, err = repoFile.WriteString(newStruct)
+	_, err = dtoFile.WriteString(newStruct)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
@@ -167,30 +187,26 @@ func (r *repo) writePartial(repoFile *os.File) {
 type FieldInfo struct {
 	Name string
 	Type string
+	Tag  []struct{ Name, Value string }
 }
 
 func getStructFields(filePath string, structName string) ([]FieldInfo, error) {
 	fset := token.NewFileSet()
-
 	node, err := parser.ParseFile(fset, filePath, nil, parser.ParseComments)
 	if err != nil {
 		return nil, err
 	}
-
 	var fields []FieldInfo
-
 	for _, decl := range node.Decls {
 		genDecl, ok := decl.(*ast.GenDecl)
 		if !ok {
 			continue
 		}
-
 		for _, spec := range genDecl.Specs {
 			typeSpec, ok := spec.(*ast.TypeSpec)
 			if !ok {
 				continue
 			}
-
 			structType, ok := typeSpec.Type.(*ast.StructType)
 			if !ok {
 				continue
@@ -204,6 +220,22 @@ func getStructFields(filePath string, structName string) ([]FieldInfo, error) {
 							fieldType = t.X.(*ast.Ident).Name + "." + t.Sel.Name
 						default:
 							fieldType = fmt.Sprint(field.Type)
+						}
+						tag := field.Tag
+						if tag != nil {
+							tagValue := tag.Value[1 : len(tag.Value)-1] // Remove surrounding backticks
+							var tagInfo []struct{ Name, Value string }
+							var re = regexp.MustCompile(`([a-zA-Z0-9]+):"([^"]+)"`)
+							matches := re.FindAllStringSubmatch(tagValue, -1)
+							for _, match := range matches {
+								tagInfo = append(tagInfo, struct{ Name, Value string }{match[1], match[2]})
+							}
+							fields = append(fields, FieldInfo{
+								Name: field.Names[0].Name,
+								Type: fieldType,
+								Tag:  tagInfo,
+							})
+							continue
 						}
 
 						fields = append(fields, FieldInfo{
@@ -221,10 +253,14 @@ func getStructFields(filePath string, structName string) ([]FieldInfo, error) {
 
 func generateStructWithTags(name string, fields []FieldInfo, tagNames []string) string {
 	var sb strings.Builder
-	ns := fmt.Sprintf("type %s struct{\n", name)
+	ns := "\n"
+	ns = fmt.Sprintf("type %s struct{\n", name)
 	sb.WriteString(ns)
 	for _, field := range fields {
 		sb.WriteString("\t" + field.Name + " " + field.Type + " `")
+		for _, tag := range field.Tag {
+			sb.WriteString(fmt.Sprintf("%s:\"%s\" ", tag.Name, tag.Value))
+		}
 		for _, tagName := range tagNames {
 			sb.WriteString(fmt.Sprintf("%s:\"%s\" ", tagName, strings.ToLower(field.Name)))
 		}

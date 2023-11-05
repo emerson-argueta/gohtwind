@@ -1,6 +1,16 @@
 
-func Create{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m {{MODEL_NAME}}) error {
-	stmt := jet.{{MODEL_NAME}}.INSERT().VALUES(m)
+func Create{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m *{{MODEL_NAME}}) error {
+	v := reflect.ValueOf(m).Elem()
+	field := v.FieldByName("UpdatedAt")
+	if field.IsValid() && field.CanSet() {
+		field.Set(reflect.ValueOf(time.Now()))
+	}
+	v = reflect.ValueOf(m).Elem()
+	field = v.FieldByName("CreatedAt")
+	if field.IsValid() && field.CanSet() {
+		field.Set(reflect.ValueOf(time.Now()))
+	}
+	stmt := jet.{{MODEL_NAME}}.INSERT().VALUES(*m)
 	log.Println(stmt.DebugSql())
 	_, err := stmt.Exec(dbs["{{DB_NAME}}"])
 	return err
@@ -41,10 +51,15 @@ func Fetch{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, id int64) {{MODEL_NAME}} {
 	return dest
 }
 
-func Update{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m {{MODEL_NAME}}) error {
+func Update{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m *{{MODEL_NAME}}) error {
+	v := reflect.ValueOf(m).Elem()
+	field := v.FieldByName("UpdatedAt")
+	if field.IsValid() && field.CanSet() {
+		field.Set(reflect.ValueOf(time.Now()))
+	}
 	stmt := jet.{{MODEL_NAME}}.
 		UPDATE(jet.{{MODEL_NAME}}.AllColumns).
-		MODEL(m).
+		MODEL(*m).
 		WHERE(jet.{{MODEL_NAME}}.ID.EQ(Int(m.ID)))
 	log.Println(stmt.DebugSql())
 	_, err := stmt.Exec(dbs["{{DB_NAME}}"])

@@ -10,6 +10,14 @@ import (
 	"time"
 )
 
+func unescapeJSFunc(s string) template.JS {
+	return template.JS(s)
+}
+
+func unescapeHTMLFunc(s string) template.HTML {
+	return template.HTML(s)
+}
+
 func dictFunc(values ...interface{}) (map[string]interface{}, error) {
 	if len(values)%2 != 0 {
 		return nil, fmt.Errorf("invalid dict call")
@@ -44,6 +52,20 @@ func formFunc(model interface{}, action string, method string) template.HTML {
 	for i := 0; i < modelType.NumField(); i++ {
 		name := modelType.Field(i).Tag.Get("form")
 		value := getValue(modelValue.Field(i))
+		// if the name is "-" then skip this field
+		if name == "-" {
+			continue
+		}
+		// if the name is created_at add as a hidden field
+		if name == "createdat" {
+			form += fmt.Sprintf(`<input type="hidden" name="%s" value="%s">`, name, value)
+			continue
+		}
+		// if the name is updated_at add as a hidden field
+		if name == "updatedat" {
+			form += fmt.Sprintf(`<input type="hidden" name="%s" value="%s">`, name, value)
+			continue
+		}
 		form += fmt.Sprintf("<label>%s</label>", name)
 		form += fmt.Sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">", name, value)
 	}
@@ -80,7 +102,9 @@ func getValue(value reflect.Value) string {
 }
 
 var TemplateHelperFuncs = template.FuncMap{
-	"dict":  dictFunc,
-	"slice": sliceFunc,
-	"form":  formFunc,
+	"dict":         dictFunc,
+	"slice":        sliceFunc,
+	"form":         formFunc,
+	"unescapeJS":   unescapeJSFunc,
+	"unescapeHTML": unescapeHTMLFunc,
 }
