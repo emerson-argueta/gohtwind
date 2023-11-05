@@ -38,8 +38,8 @@ func sliceFunc(values ...interface{}) []interface{} {
 }
 
 func formFunc(model interface{}, action string, method string) template.HTML {
-	modelType := reflect.TypeOf(model).Field(0).Type
-	modelValue := reflect.ValueOf(model).Field(0)
+	modelType := reflect.TypeOf(model)
+	modelValue := reflect.ValueOf(model)
 	form := fmt.Sprintf("<form action=\"%s\" method=\"%s\">", action, method)
 	if method == "PATCH" {
 		form += fmt.Sprintf(`<input type="hidden" name="_method" value="%s">`, method)
@@ -56,13 +56,8 @@ func formFunc(model interface{}, action string, method string) template.HTML {
 		if name == "-" {
 			continue
 		}
-		// if the name is created_at add as a hidden field
-		if name == "createdat" {
-			form += fmt.Sprintf(`<input type="hidden" name="%s" value="%s">`, name, value)
-			continue
-		}
-		// if the name is updated_at add as a hidden field
-		if name == "updatedat" {
+		// if the name is id add as a hidden field
+		if name == "id" {
 			form += fmt.Sprintf(`<input type="hidden" name="%s" value="%s">`, name, value)
 			continue
 		}
