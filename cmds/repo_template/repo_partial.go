@@ -58,7 +58,7 @@ func Update{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m *{{MODEL_NAME}}) error {
 		field.Set(reflect.ValueOf(time.Now()))
 	}
 	stmt := jet.{{MODEL_NAME}}.
-		UPDATE(jet.{{MODEL_NAME}}.AllColumns).
+		UPDATE(infra.UpdateColumns(*m)).
 		MODEL(*m).
 		WHERE(jet.{{MODEL_NAME}}.ID.EQ(Int(m.ID)))
 	log.Println(stmt.DebugSql())
