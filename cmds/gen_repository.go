@@ -116,6 +116,8 @@ func (r *repo) writeImports(repoFile *os.File) {
 	imports = fmt.Sprintf("%simport(\n", imports)
 	imports = fmt.Sprintf("%s\t\"database/sql\"\n", imports)
 	imports = fmt.Sprintf("%s\t\"log\"\n", imports)
+	imports = fmt.Sprintf("%s\t\"time\"\n", imports)
+	imports = fmt.Sprintf("%s\t\"reflect\"\n", imports)
 	imports = fmt.Sprintf("%s\t\"%s/infra\"\n", imports, projName)
 	if *r.adapter == "postgres" {
 		imports = fmt.Sprintf("%s\t. \"github.com/go-jet/jet/v2/postgres\"\n", imports)
