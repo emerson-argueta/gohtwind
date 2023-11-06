@@ -136,7 +136,7 @@ func (r *repo) writeImports(repoFile *os.File) {
 }
 
 func (r *repo) writeDto(dtoFile *os.File) {
-	fp := filepath.Join(r.projectPath, ".gen", *r.dbName, "model", fmt.Sprintf("%s.go", *r.modelName))
+	fp := filepath.Join(r.projectPath, ".gen", *r.dbName, "model", fmt.Sprintf("%s.go", strings.ToLower(*r.modelName)))
 	fields, err := getStructFields(fp, *r.modelName)
 	fmt.Println(fields)
 	if err != nil {
