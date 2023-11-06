@@ -8,6 +8,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"runtime"
+	"strings"
 )
 
 //go:embed bin/jet
@@ -110,8 +112,9 @@ func executeJetCmd(modelsSchema string, modelsDsn string, modelsAdapter string) 
 }
 
 func createTempExecutable() (string, error) {
-	// Read the embedded file
-	f, err := jetBinary.Open("bin/jet")
+	o := strings.ToLower(runtime.GOOS)
+	a := strings.ToLower(runtime.GOARCH)
+	f, err := jetBinary.Open(fmt.Sprintf("bin/jet-%s-%s", o, a))
 	if err != nil {
 		return "", err
 	}
