@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-//go:embed bin/jet
+//go:embed bin/jet-*
 var jetBinary embed.FS
 
 func genModelsUsageString() string {
