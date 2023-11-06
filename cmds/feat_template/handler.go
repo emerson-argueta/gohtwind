@@ -18,6 +18,7 @@ func (h *Handle) List(w http.ResponseWriter, r *http.Request) {
     // Render the list view with the fetched items
     renderTemplate(w, "{{FEATURE_NAME}}/templates/list.html", map[string]interface{}{
         "Items": items, // Pass the items as data to the template
+        "Model": struct{Test string}{}, // Pass the model dto here
     })
 }
 
