@@ -4,12 +4,9 @@ import (
 	"embed"
 	"flag"
 	"fmt"
-	"go/ast"
-	"go/parser"
-	"go/token"
+	"gohtwind/utils"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 )
 
@@ -137,7 +134,7 @@ func (r *repo) writeImports(repoFile *os.File) {
 
 func (r *repo) writeDto(dtoFile *os.File) {
 	fp := filepath.Join(r.projectPath, ".gen", *r.dbName, "model", fmt.Sprintf("%s.go", strings.ToLower(*r.modelName)))
-	fields, err := getStructFields(fp, *r.modelName)
+	fields, err := utils.GetStructFields(fp, *r.modelName)
 	fmt.Println(fields)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -162,7 +159,7 @@ func (r *repo) writeDto(dtoFile *os.File) {
 			os.Exit(1)
 		}
 	}
-	newStruct := generateStructWithTags(ns, fields, tags)
+	newStruct := utils.GenerateStructWithTags(ns, fields, tags)
 	_, err = dtoFile.WriteString(newStruct)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -184,90 +181,4 @@ func (r *repo) writePartial(repoFile *os.File) {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
-}
-
-type FieldInfo struct {
-	Name string
-	Type string
-	Tag  []struct{ Name, Value string }
-}
-
-func getStructFields(filePath string, structName string) ([]FieldInfo, error) {
-	fset := token.NewFileSet()
-	node, err := parser.ParseFile(fset, filePath, nil, parser.ParseComments)
-	if err != nil {
-		return nil, err
-	}
-	var fields []FieldInfo
-	for _, decl := range node.Decls {
-		genDecl, ok := decl.(*ast.GenDecl)
-		if !ok {
-			continue
-		}
-		for _, spec := range genDecl.Specs {
-			typeSpec, ok := spec.(*ast.TypeSpec)
-			if !ok {
-				continue
-			}
-			structType, ok := typeSpec.Type.(*ast.StructType)
-			if !ok {
-				continue
-			}
-			if typeSpec.Name.Name == structName {
-				for _, field := range structType.Fields.List {
-					if len(field.Names) > 0 {
-						fieldType := ""
-						switch t := field.Type.(type) {
-						case *ast.SelectorExpr:
-							fieldType = t.X.(*ast.Ident).Name + "." + t.Sel.Name
-						default:
-							fieldType = fmt.Sprint(field.Type)
-						}
-						tag := field.Tag
-						if tag != nil {
-							tagValue := tag.Value[1 : len(tag.Value)-1] // Remove surrounding backticks
-							var tagInfo []struct{ Name, Value string }
-							var re = regexp.MustCompile(`([a-zA-Z0-9]+):"([^"]+)"`)
-							matches := re.FindAllStringSubmatch(tagValue, -1)
-							for _, match := range matches {
-								tagInfo = append(tagInfo, struct{ Name, Value string }{match[1], match[2]})
-							}
-							fields = append(fields, FieldInfo{
-								Name: field.Names[0].Name,
-								Type: fieldType,
-								Tag:  tagInfo,
-							})
-							continue
-						}
-
-						fields = append(fields, FieldInfo{
-							Name: field.Names[0].Name,
-							Type: fieldType,
-						})
-					}
-				}
-			}
-		}
-	}
-
-	return fields, nil
-}
-
-func generateStructWithTags(name string, fields []FieldInfo, tagNames []string) string {
-	var sb strings.Builder
-	ns := "\n"
-	ns = fmt.Sprintf("type %s struct{\n", name)
-	sb.WriteString(ns)
-	for _, field := range fields {
-		sb.WriteString("\t" + field.Name + " " + field.Type + " `")
-		for _, tag := range field.Tag {
-			sb.WriteString(fmt.Sprintf("%s:\"%s\" ", tag.Name, tag.Value))
-		}
-		for _, tagName := range tagNames {
-			sb.WriteString(fmt.Sprintf("%s:\"%s\" ", tagName, strings.ToLower(field.Name)))
-		}
-		sb.WriteString("`\n")
-	}
-	sb.WriteString("}\n")
-	return sb.String()
 }
