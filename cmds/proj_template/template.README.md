@@ -16,7 +16,7 @@ Gohtwind is an opinionated and lightweight full-stack framework designed for rap
 - Language: Go (Golang)
 - Routing: Standard net/http library
 - Templating: Standard html/template library
-- Authentication: Auth0 (coming soon)
+- Authentication: Authboss (coming soon)
 - Authorization: Casbin (coming soon)
 - Database Interaction: go-jet/jet
 ### Frontend:
