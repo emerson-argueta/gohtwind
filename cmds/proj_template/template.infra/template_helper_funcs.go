@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -40,7 +41,18 @@ func sliceFunc(values ...interface{}) []interface{} {
 func formFunc(model interface{}, action string, method string) template.HTML {
 	modelType := reflect.TypeOf(model)
 	modelValue := reflect.ValueOf(model)
+	tpl := fmt.Sprintf(`
+		<section>
+		  <div class="py-8 px-4 mx-auto max-w-5xl lg:py-16">
+			  <h2 class="mb-4 text-xl font-bold text-gray-900">Add a new %s</h2>
+			  {{FORM_STR}}
+		  </div>
+		</section>
+	`, modelType.Name())
 	form := fmt.Sprintf("<form action=\"%s\" method=\"%s\">", action, method)
+	form += `
+            <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+	`
 	if method == "PATCH" {
 		form += fmt.Sprintf(`<input type="hidden" name="_method" value="%s">`, method)
 	}
@@ -49,6 +61,7 @@ func formFunc(model interface{}, action string, method string) template.HTML {
 		log.Printf("error generating csrf token: %v", err)
 	}
 	form += fmt.Sprintf(`<input type="hidden" name="csrf_token" value="%s">`, tk)
+	vis_count := 0
 	for i := 0; i < modelType.NumField(); i++ {
 		name := modelType.Field(i).Tag.Get("form")
 		value := getValue(modelValue.Field(i))
@@ -61,12 +74,25 @@ func formFunc(model interface{}, action string, method string) template.HTML {
 			form += fmt.Sprintf(`<input type="hidden" name="%s" value="%s">`, name, value)
 			continue
 		}
-		form += fmt.Sprintf("<label>%s</label>", name)
-		form += fmt.Sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">", name, value)
+		if vis_count%3 != 0 {
+			form += `<div>`
+			form += fmt.Sprintf("<label class=\"form-label\">%s</label>", name)
+			form += fmt.Sprintf("<input class=\"form-input\" type=\"text\" name=\"%s\" value=\"%s\">", name, value)
+			form += `</div>`
+			vis_count++
+			continue
+		}
+		form += `<div class="sm:col-span-2">`
+		form += fmt.Sprintf("<label class=\"form-label\">%s</label>", name)
+		form += fmt.Sprintf("<input class=\"form-input\" type=\"text\" name=\"%s\" value=\"%s\">", name, value)
+		form += `</div>`
+		vis_count++
 	}
-	form += "<input type=\"submit\" value=\"Submit\">"
+	form += `</div>`
+	form += fmt.Sprintf("<button type=\"submit\" class=\"mt-4 sm:mt-6 btn-blue\">Add %s", modelType.Name())
 	form += "</form>"
-	return template.HTML(form)
+	tpl = strings.ReplaceAll(tpl, "{{FORM_STR}}", form)
+	return template.HTML(tpl)
 
 }
 
