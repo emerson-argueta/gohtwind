@@ -73,6 +73,9 @@ func formFunc(model interface{}, action string, method string) template.HTML {
 		if name == "-" {
 			continue
 		}
+		if name == "createdat" || name == "updatedat" {
+			continue
+		}
 		// if the name is id add as a hidden field
 		if name == "id" {
 			form += fmt.Sprintf(`<input type="hidden" name="%s" value="%s">`, name, value)
