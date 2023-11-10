@@ -1,14 +1,3 @@
-function toggleHidden(selector) {
-    var elems = document.querySelectorAll(selector);
-    elems.forEach(elem => {
-        if (elem.classList.contains('hidden')) {
-            elem.classList.remove('hidden');
-        } else {
-            elem.classList.add('hidden');
-        }
-    });
-}
-
 function toggleBetween(selector, subsetClasses1Str, subsetClasses2Str) {
     var elems = document.querySelectorAll(selector);
     const subsetClasses1 = subsetClasses1Str.split(' ');
@@ -38,4 +27,15 @@ function exclusiveSelectionToggle(targetElem, selector, defaultClassesStr, selec
             selectedClasses.forEach(c => elem.classList.remove(c));
         }
     });
+}
+
+function handleEscapeKey(event, selector) {
+    if (event.keyCode === 27) { // 27 is the key code for Escape
+        var containers = document.querySelectorAll(selector);
+        containers.forEach(container => {
+            if (!container.classList.contains('hidden')) {
+                container.classList.add('hidden');
+            }
+        });
+    }
 }

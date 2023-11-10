@@ -41,14 +41,18 @@ func sliceFunc(values ...interface{}) []interface{} {
 func formFunc(model interface{}, action string, method string) template.HTML {
 	modelType := reflect.TypeOf(model)
 	modelValue := reflect.ValueOf(model)
+	tdo := "Add New"
+	if method == "PATCH" {
+		tdo = "Update Existing"
+	}
 	tpl := fmt.Sprintf(`
 		<section>
 		  <div class="py-8 px-4 mx-auto max-w-5xl lg:py-16">
-			  <h2 class="mb-4 text-xl font-bold text-gray-900">Add a new %s</h2>
+			  <h2 class="mb-4 text-xl font-bold text-gray-900">%s</h2>
 			  {{FORM_STR}}
 		  </div>
 		</section>
-	`, modelType.Name())
+	`, tdo)
 	form := fmt.Sprintf("<form action=\"%s\" method=\"%s\">", action, method)
 	form += `
             <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
