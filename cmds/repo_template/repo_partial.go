@@ -2,13 +2,14 @@
 func Create{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m *{{MODEL_NAME}}) error {
 	v := reflect.ValueOf(m).Elem()
 	field := v.FieldByName("UpdatedAt")
+	t := time.Now()
 	if field.IsValid() && field.CanSet() {
-		field.Set(reflect.ValueOf(time.Now()))
+		field.Set(reflect.ValueOf(t))
 	}
 	v = reflect.ValueOf(m).Elem()
 	field = v.FieldByName("CreatedAt")
 	if field.IsValid() && field.CanSet() {
-		field.Set(reflect.ValueOf(time.Now()))
+		field.Set(reflect.ValueOf(t))
 	}
 	stmt := jet.{{MODEL_NAME}}.INSERT().Model(*m)
 	log.Println(stmt.DebugSql())
