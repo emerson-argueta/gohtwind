@@ -39,9 +39,9 @@ func NewRouter(routes []Route) *Router {
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	methodOverride := req.FormValue("_method")
-	directKey := fmt.Sprintf("%s ^%s$", req.Method, req.URL.Path)
+	directKey := fmt.Sprintf("%s %s", req.Method, req.URL.Path)
 	if methodOverride == "PATCH" {
-		directKey = fmt.Sprintf("%s ^%s$", "PATCH", req.URL.Path)
+		directKey = fmt.Sprintf("%s %s", "PATCH", req.URL.Path)
 	}
 	if routeInfo, ok := r.routes[directKey]; ok {
 		routeInfo.handler.ServeHTTP(w, req)
