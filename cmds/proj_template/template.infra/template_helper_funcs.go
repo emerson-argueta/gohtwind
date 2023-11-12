@@ -96,7 +96,11 @@ func formFunc(model interface{}, action string, method string) template.HTML {
 		vis_count++
 	}
 	form += `</div>`
-	form += fmt.Sprintf("<button type=\"submit\" class=\"mt-4 sm:mt-6 btn-blue\">Add %s", modelType.Name())
+	if method == "PATCH" {
+		form += `<button type="submit" class="mt-4 sm:mt-6 btn-blue">Update`
+	} else {
+		form += `<button type="submit" class="mt-4 sm:mt-6 btn-blue">Add`
+	}
 	form += "</form>"
 	tpl = strings.ReplaceAll(tpl, "{{FORM_STR}}", form)
 	return template.HTML(tpl)
