@@ -1,6 +1,6 @@
 <li>
     <a href="#"
-       onclick="exclusiveSelectionToggle(this,'.sidebar-link', 'hover:bg-gray-50', 'bg-gray-300')"
+       hx-on:click="exclusiveSelectionToggle(this,'.sidebar-link', 'hover:bg-gray-50', 'bg-gray-300')"
        class="sidebar-link block rounded-md py-2 pr-2 pl-10 text-sm leading-6 font-semibold text-gray-700"
     >{{.}}</a>
 </li>

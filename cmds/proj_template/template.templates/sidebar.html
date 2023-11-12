@@ -1,4 +1,4 @@
-<div class="flex grow flex-col gap-y-4 overflow-y-auto border-r border-gray-300 px-4">
+<div class="bg-gray-50 flex grow flex-col gap-y-4 overflow-y-auto border-r border-gray-300 px-4">
     <div class="flex h-16 shrink-0 items-center">
         <img class="h-16" src="/static/images/logo.png" alt="Your Company">
     </div>
@@ -11,7 +11,7 @@
                     {{ template "templates/sidebar_link.html" "Products" }}
                     {{ template "templates/sidebar_link.html" "Employees" }}
                     {{ template "templates/sidebar_link.html" "Customers" }}
-                    {{ template "templates/sidebar_expandable_link.html" dict "Name" "Admin" "Links" (slice "Manage Products" "Manage Employees" "Manage Customers") }}
+                    {{ template "templates/sidebar_expandable_link.html" dict "Index" "1" "Type" . "Name" "Admin" "Links" (slice "Manage Products" "Manage Employees" "Manage Customers") }}
                 </ul>
             </li>
             <!-- profile-->

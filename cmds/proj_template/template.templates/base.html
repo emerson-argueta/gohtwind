@@ -20,14 +20,14 @@
                         </svg>
                     </button>
                 </div>
-                {{ template "templates/sidebar.html" . }}
+                {{ template "templates/sidebar.html" "mobile" }}
             </div>
         </div>
     </div>
 
     <!-- Desktop sidebar -->
     <div class="hidden xl:fixed xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col">
-        {{ template "templates/sidebar.html" . }}
+        {{ template "templates/sidebar.html" "desktop" }}
     </div>
 
     <div class="xl:pl-72">
