@@ -258,7 +258,19 @@ gohtwind gen-repository -feature-name=<feature_name> -model-name=<model_name> -d
 * The `-db-name` flag specifies the name of the database
 * The `-schema` schema (postgres only) the model is in.
 * The `-adapter` flag specifies the database adapter to use. Currently, only MySQL and Postgres is supported.
+
+4. To generate a form inside a template, use the following gohtwind command:
 ```bash
+gohtwind gen-form -feature-name=<feature_name> -model-name=<model_name>
+```
+* This command replaces {{GEN_FORM}} in the specified template with a form for the specified model
+* The form is generated using the model's form tags
+* When an instance name is provided, the form is generated with the instance's values 
+* The `-feature-name` flag specifies the name of the feature the form is for.
+* The `-model-name` flag specifies the name of the model the form is for. 
+* The  `-template-name` flag specifies the name of the template the form is for. 
+* The  `-instance-name` flag specifies the name of the instance the form is for. Use this flag for update forms. Omit this flag for create forms.
+* The `-action` flag specifies the action of the form. 
 
 3. To start the development server run the script:
 ```bash
