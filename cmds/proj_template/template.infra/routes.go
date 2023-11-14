@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -71,15 +72,23 @@ func keyAndID(req *http.Request) (string, string) {
 	}
 	pathSegments := strings.Split(strings.Trim(req.URL.Path, "/"), "/") // Trim is used to remove any leading or trailing slashes
 	switch len(pathSegments) {
-	case 2: // Potentially /<resource_name>/{id}
+	case 2: // Potentially /<feature_name>/{id}
 		resource := pathSegments[0]
 		reconstructedPath := fmt.Sprintf("/%s/{id}", resource)
 		return fmt.Sprintf("%s %s", method, reconstructedPath), pathSegments[1]
-	case 3: // Potentially /<resource_name>/{id}/<action>
+	case 3: // Potentially /<feature_name>/{id}/<action> or /<feature_name>/<resource_name>/{id}
 		resource := pathSegments[0]
-		action := pathSegments[2]
-		reconstructedPath := fmt.Sprintf("/%s/{id}/%s", resource, action)
+		actionOrId := pathSegments[2]
+		// id is a number
+		if _, err := strconv.Atoi(actionOrId); err == nil {
+			reconstructedPath := fmt.Sprintf("/%s/%s/{id}", pathSegments[0], pathSegments[1])
+			return fmt.Sprintf("%s %s", method, reconstructedPath), actionOrId
+		}
+		reconstructedPath := fmt.Sprintf("/%s/{id}/%s", resource, actionOrId)
 		return fmt.Sprintf("%s %s", method, reconstructedPath), pathSegments[1]
+	case 4: // Potentially /<feature_name>/<resource_name>/{id}/<action>
+		reconstructedPath := fmt.Sprintf("/%s/%s/{id}/%s", pathSegments[0], pathSegments[1], pathSegments[3])
+		return fmt.Sprintf("%s %s", method, reconstructedPath), pathSegments[2]
 	default:
 		// If the URL doesn't match expected structures, it could be a direct match or a 404.
 		return fmt.Sprintf("%s %s", method, req.URL.Path), ""
