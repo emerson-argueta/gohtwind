@@ -8,9 +8,11 @@
             onclick="createDialog.showModal()"
             class="btn-blue ml-auto"
     >Add New</button>
-    <dialog id="createDialog" class="w-full h-full">
-        {{ template "{{FEATURE_NAME}}/templates/create.html" . }}
-    </dialog>
+    <div class="flex justify-center">
+        <dialog id="createDialog" class="w-full h-full">
+            {{ template "{{FEATURE_NAME}}/templates/create.html" . }}
+        </dialog>
+    </div>
 
     <ul role="list" class="divide-y divide-gray-100">
         {{range $i, $v := .Items}}
