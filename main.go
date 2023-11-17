@@ -22,12 +22,13 @@ Usage: gohtwind <command> [options]
 }
 
 var cmdFuncs = map[string]func(){
-	"new":            cmds.GenProject,
-	"gen-feature":    cmds.GenFeature,
-	"gen-models":     cmds.GenModels,
-	"gen-repository": cmds.GenRepository,
-	"gen-form":       cmds.GenForm,
-	"gen-migration":  cmds.GenMigration,
+	"new":             cmds.GenProject,
+	"gen-feature":     cmds.GenFeature,
+	"gen-models":      cmds.GenModels,
+	"gen-repository":  cmds.GenRepository,
+	"gen-form":        cmds.GenForm,
+	"gen-migration":   cmds.GenMigration,
+	"apply-migration": cmds.ApplyMigration,
 }
 
 func main() {

@@ -19,6 +19,7 @@ type Database struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	Database string `yaml:"database"`
+	Schema   string `yaml:"schema"`
 	Socket   string `yaml:"socket"`
 	MaxConn  int    `yaml:"max_conn"`
 	MaxIdle  int    `yaml:"max_idle"`
@@ -111,8 +112,8 @@ var dbSetupFuncMap = map[string]func(Database) (*sql.DB, error){
 		return setUpDB(d, "mysql", dsn)
 	},
 	"psql": func(d Database) (*sql.DB, error) {
-		dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-			d.Host, d.Port, d.Username, d.Password, d.Database,
+		dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable search_path=%s",
+			d.Host, d.Port, d.Username, d.Password, d.Database, d.Schema,
 		)
 		return setUpDB(d, "postgres", dsn)
 	},
@@ -134,6 +135,15 @@ func (cfg *DBsConfig) ConnectAll() (map[string]*sql.DB, error) {
 		dbs[name] = db
 	}
 	return dbs, nil
+}
+
+func (cfg *DBsConfig) Connect(dbName string) (*sql.DB, error) {
+	d := cfg.Databases[dbName]
+	dbSetupFunc, ok := dbSetupFuncMap[d.Adapter]
+	if !ok {
+		return nil, fmt.Errorf("Adapter %s not supported", d.Adapter)
+	}
+	return dbSetupFunc(d)
 }
 
 func setUpDB(d Database, adapter string, dsn string) (*sql.DB, error) {
