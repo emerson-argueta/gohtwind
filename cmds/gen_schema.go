@@ -47,17 +47,17 @@ func newSchema() *schema {
 }
 
 func GenSchema(args []string) {
-	schema := newSchema()
+	s := newSchema()
 	if len(os.Args) < 2 {
 		fmt.Println(genSchemaUsageString())
 		os.Exit(1)
 	}
-	schema.flagSet.Parse(os.Args[2:])
-	if *schema.databaseName == "" || *schema.adapter == "" {
+	s.flagSet.Parse(os.Args[2:])
+	if *s.databaseName == "" || *s.adapter == "" {
 		fmt.Println(genSchemaUsageString())
 		os.Exit(1)
 	}
-	schema.genSchema()
+	s.genSchema()
 }
 
 func (s *schema) genSchema() {

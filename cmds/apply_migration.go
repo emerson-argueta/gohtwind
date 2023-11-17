@@ -52,17 +52,17 @@ func newApplyMigration() *applyMigration {
 }
 
 func ApplyMigration(args []string) {
-	applyMigration := newApplyMigration()
+	m := newApplyMigration()
 	if len(os.Args) < 2 {
 		fmt.Println(applyMigrationUsageString())
 		os.Exit(1)
 	}
-	applyMigration.flagSet.Parse(os.Args[2:])
-	if *applyMigration.fileName == "" || *applyMigration.adapter == "" || *applyMigration.databaseName == "" {
+	m.flagSet.Parse(os.Args[2:])
+	if *m.fileName == "" || *m.adapter == "" || *m.databaseName == "" {
 		fmt.Println(applyMigrationUsageString())
 		os.Exit(1)
 	}
-	applyMigration.applyMigration()
+	m.applyMigration()
 }
 
 func (m *applyMigration) applyMigration() {

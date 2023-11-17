@@ -27,6 +27,7 @@ var cmdFuncs = map[string]func(){
 	"gen-models":     cmds.GenModels,
 	"gen-repository": cmds.GenRepository,
 	"gen-form":       cmds.GenForm,
+	"gen-migration":  cmds.GenMigration,
 }
 
 func main() {
