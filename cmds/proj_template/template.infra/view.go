@@ -14,20 +14,20 @@ type View struct {
 	fp        string
 }
 
-func NewView(basePath string, fp string) *View {
+func NewView(basePath string, fp string) (*View, error) {
 	allTemplatePaths, err := collectAllTemplatePaths(basePath, fp)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	templates := template.New("").Funcs(TemplateHelperFuncs)
 	for _, path := range allTemplatePaths {
 		content, err := os.ReadFile(path)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		_, err = templates.New(filepath.ToSlash(path)).Parse(string(content))
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 	}
 
@@ -35,7 +35,7 @@ func NewView(basePath string, fp string) *View {
 		basePath:  basePath,
 		fp:        fp,
 		templates: templates,
-	}
+	}, nil
 }
 
 func collectAllTemplatePaths(paths ...string) ([]string, error) {

@@ -9,16 +9,25 @@ import (
 const basePath = "templates"
 
 var fp = filepath.Join("{{FEATURE_NAME}}", "templates")
-var feature_view *infra.View
+var featureView func() (*infra.View,error)
 
 func init() {
-	feature_view = infra.NewView(basePath, fp)
+	fv, err := infra.NewView(basePath, fp)
+	featureView = func() (*infra.View,error) { return fv, err }
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	feature_view.RenderTemplate(w, tmpl, data)
+	fv, err := featureView()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	fv.RenderTemplate(w, tmpl, data)
 }
 
 func renderPartialTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	feature_view.RenderPartialTemplate(w, tmpl, data)
+	fv, err := featureView()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	fv.RenderPartialTemplate(w, tmpl, data)
 }
