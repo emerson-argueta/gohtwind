@@ -8,6 +8,7 @@ import (
 	"go/parser"
 	"go/token"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -126,4 +127,14 @@ func GenerateStructWithTags(name string, fields []FieldInfo, tagNames []string) 
 	}
 	sb.WriteString("}\n")
 	return sb.String()
+}
+func SetUpEnv(env string) {
+	ef := ".env"
+	if env == "production" {
+		ef = ".env.production"
+	}
+	err := godotenv.Load(ef)
+	if err != nil {
+		log.Fatal("Error loading env file")
+	}
 }

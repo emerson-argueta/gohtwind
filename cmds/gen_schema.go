@@ -47,7 +47,7 @@ func newSchema() *schema {
 	adapter := genSchemaFlags.String("adapter", "", "Database adapter to use")
 	sc := genSchemaFlags.String("schema-name", "", "Name of the schema to generate a schema for (postgres only)")
 	dc := NewDBsConfig()
-	db, err := dc.Connect(*sc)
+	db, err := dc.Connect(*databaseName)
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
@@ -80,10 +80,12 @@ func GenSchema() {
 		fmt.Println(genSchemaUsageString())
 		os.Exit(1)
 	}
-	s.genSchema()
+	f := s.createSchemaFile()
+	defer f.Close()
+	s.writeDDLs(f)
 }
 
-func (s *schema) genSchema() {
+func (s *schema) createSchemaFile() *os.File {
 	t := time.Now().Format("20060102150405")
 	fn := fmt.Sprintf("%s_%s.sql", t, *s.databaseName)
 	if *s.adapter == "postgres" {
@@ -95,18 +97,7 @@ func (s *schema) genSchema() {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
-	defer f.Close()
-	switch *s.adapter {
-	case "mysql":
-		s.writeMysqlDDL(f)
-	case "postgres":
-		s.writePostgresDDL(f)
-	case "sqlite3":
-		s.writeSQLite3DDL(f)
-	default:
-		fmt.Fprintf(os.Stderr, "Error: %v\n", fmt.Errorf("Unsupported adapter: %s", *s.adapter))
-		os.Exit(1)
-	}
+	return f
 }
 
 func (s *schema) creteFilePath(fn string) string {
@@ -119,8 +110,8 @@ func (s *schema) creteFilePath(fn string) string {
 	return fmt.Sprintf("%s/%s", fp, fn)
 }
 
-func (s *schema) writeMysqlDDL(f *os.File) {
-	qq := s.mysqlDdlQueries()
+func (s *schema) writeDDLs(f *os.File) {
+	qq := s.ddlQueries()
 	for _, q := range qq {
 		// execute the query and get the ddl statement
 		var tableName, ddl string
@@ -129,7 +120,6 @@ func (s *schema) writeMysqlDDL(f *os.File) {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
-		// write the ddl statement to the file
 		_, err = f.WriteString(fmt.Sprintf("%s;\n", ddl))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -138,14 +128,29 @@ func (s *schema) writeMysqlDDL(f *os.File) {
 	}
 }
 
-func (s *schema) mysqlDdlQueries() []string {
-	stmt, err := s.db.Prepare("SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = ?")
+func (s *schema) ddlQueries() []string {
+	var tq, dq, qp string
+	switch *s.adapter {
+	case "mysql":
+		tq = "SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = ?"
+		dq = "SHOW CREATE TABLE %s.%s"
+		qp = *s.databaseName
+	case "postgres":
+		tq = "SELECT table_name, pg_get_ddl('TABLE ' || table_name) FROM information_schema.tables WHERE table_schema = ?"
+		dq = "SELECT '%s'::text AS table_name, pg_get_ddl('TABLE %s.%s')::text AS ddl"
+		qp = *s.schemaName
+	case "sqlite3":
+		tq = "SELECT name FROM sqlite_master WHERE type='table'"
+		dq = "SELECT '%s' AS table_name, sql AS ddl FROM sqlite_master WHERE type='table' AND name='%s'"
+		qp = *s.databaseName
+	}
+	stmt, err := s.db.Prepare(tq)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 	qq := []string{}
-	rows, err := stmt.Query(*s.databaseName)
+	rows, err := stmt.Query(qp)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
@@ -158,97 +163,18 @@ func (s *schema) mysqlDdlQueries() []string {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
-		q := fmt.Sprintf("SHOW CREATE TABLE %s.%s;\n", *s.databaseName, tableName)
-		qq = append(qq, q)
-	}
-	return qq
-}
-
-func (s *schema) writePostgresDDL(f *os.File) {
-	qq := s.postgresDdlQueries()
-	for _, q := range qq {
-		// execute the query and get the ddl statement
-		var tableName, ddl string
-		err := s.db.QueryRow(q).Scan(&tableName, &ddl)
-		if err != nil {
+		var q string
+		switch *s.adapter {
+		case "mysql":
+			q = fmt.Sprintf(dq, *s.databaseName, tableName)
+		case "postgres":
+			q = fmt.Sprintf(dq, tableName, *s.databaseName, tableName)
+		case "sqlite3":
+			q = fmt.Sprintf(dq, tableName, tableName)
+		default:
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
-		// write the ddl statement to the file
-		_, err = f.WriteString(fmt.Sprintf("%s;\n", ddl))
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-	}
-}
-
-func (s *schema) postgresDdlQueries() []string {
-	stmt, err := s.db.Prepare("SELECT table_name FROM information_schema.tables WHERE table_schema = ?")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-	qq := []string{}
-	rows, err := stmt.Query(*s.schemaName)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var tableName string
-		err := rows.Scan(&tableName)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-		q := fmt.Sprintf("SELECT '%s'::text AS table_name, pg_get_ddl('TABLE %s.%s')::text AS ddl", tableName, *s.schemaName, tableName)
-		qq = append(qq, q)
-	}
-	return qq
-}
-
-func (s *schema) writeSQLite3DDL(f *os.File) {
-	qq := s.sqlite3DdlQueries()
-	for _, q := range qq {
-		// execute the query and get the ddl statement
-		var tableName, ddl string
-		err := s.db.QueryRow(q).Scan(&tableName, &ddl)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-		// write the ddl statement to the file
-		_, err = f.WriteString(fmt.Sprintf("%s;\n", ddl))
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-	}
-}
-
-func (s *schema) sqlite3DdlQueries() []string {
-	stmt, err := s.db.Prepare("SELECT name FROM sqlite_master WHERE type='table'")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-	qq := []string{}
-	rows, err := stmt.Query()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var tableName string
-		err := rows.Scan(&tableName)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-		q := fmt.Sprintf("SELECT '%s' AS table_name, sql AS ddl FROM sqlite_master WHERE type='table' AND name='%s'", tableName, tableName)
 		qq = append(qq, q)
 	}
 	return qq

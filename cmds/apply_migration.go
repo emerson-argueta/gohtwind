@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"github.com/joho/godotenv"
+	"gohtwind/utils"
 	"log"
 	"os"
 )
@@ -39,25 +39,11 @@ type applyMigration struct {
 	databaseName *string
 	schemaName   *string
 	env          *string
+	db           *sql.DB
 	projectPath  string
 }
 
-func setUpEnv() string {
-	// Define the -env flag
-	env := flag.String("env", "development", "Environment (production or development)")
-	flag.Parse()
-	var envFileName string
-	if *env == "production" {
-		envFileName = ".env.production"
-	} else {
-		envFileName = ".env"
-	}
-	return envFileName
-}
-
 func newApplyMigration() *applyMigration {
-	ef := setUpEnv()
-	err := godotenv.Load(ef)
 	applyMigrationFlags := flag.NewFlagSet("gohtwind apply-migration", flag.ExitOnError)
 	pjp, err := os.Getwd()
 	if err != nil {
@@ -69,6 +55,16 @@ func newApplyMigration() *applyMigration {
 	databaseName := applyMigrationFlags.String("database-name", "", "Name of the database to apply the migration to (use the name of the database in the config/database.yml file)")
 	schemaName := applyMigrationFlags.String("schema-name", "", "Name of the schema to apply the migration to (use the name of the schema in the config/database.yml file)")
 	env := applyMigrationFlags.String("env", "development", "Environment to use (development, test, production)")
+	utils.SetUpEnv(*env)
+	dc := NewDBsConfig()
+	db, err := dc.Connect(*databaseName)
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(db)
+	CheckDatabaseConnection(db)
 	return &applyMigration{
 		flagSet:      applyMigrationFlags,
 		fileName:     fileName,
@@ -76,6 +72,7 @@ func newApplyMigration() *applyMigration {
 		databaseName: databaseName,
 		schemaName:   schemaName,
 		env:          env,
+		db:           db,
 		projectPath:  pjp,
 	}
 }
@@ -99,85 +96,25 @@ func ApplyMigration() {
 }
 
 func (m *applyMigration) applyMigration() {
+	var fp string
 	switch *m.adapter {
 	case "mysql":
-		m.applyMySQLMigration()
+		fp = fmt.Sprintf("%s/db/migrations/%s/%s", m.projectPath, *m.databaseName, *m.fileName)
 	case "postgres":
-		m.applyPostgresMigration()
+		fp = fmt.Sprintf("%s/db/migrations/%s/%s/%s", m.projectPath, *m.databaseName, *m.schemaName, *m.fileName)
 	case "sqlite3":
-		m.applySQLite3Migration()
+		fp = fmt.Sprintf("%s/db/migrations/%s/%s", m.projectPath, *m.databaseName, *m.fileName)
 	default:
 		fmt.Fprintf(os.Stderr, "Error: %v\n", fmt.Errorf("Unsupported adapter: %s", *m.adapter))
 		os.Exit(1)
 	}
-}
-
-func (m *applyMigration) applyMySQLMigration() {
-	fp := fmt.Sprintf("%s/db/migrations/%s/%s", m.projectPath, *m.databaseName, *m.fileName)
 	fb, err := os.ReadFile(fp)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 	fs := string(fb)
-	dc := NewDBsConfig()
-	db, err := dc.Connect(*m.databaseName)
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}(db)
-	CheckDatabaseConnection(db)
-	_, err = db.Exec(fs)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-}
-
-func (m *applyMigration) applyPostgresMigration() {
-	fp := fmt.Sprintf("%s/db/migrations/%s/%s/%s", m.projectPath, *m.databaseName, *m.schemaName, *m.fileName)
-	fb, err := os.ReadFile(fp)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-	fs := string(fb)
-	dc := NewDBsConfig()
-	db, err := dc.Connect(*m.databaseName)
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}(db)
-	CheckDatabaseConnection(db)
-	_, err = db.Exec(fs)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-}
-
-func (m *applyMigration) applySQLite3Migration() {
-	fp := fmt.Sprintf("%s/db/migrations/%s/%s", m.projectPath, *m.databaseName, *m.fileName)
-	fb, err := os.ReadFile(fp)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-	fs := string(fb)
-	dc := NewDBsConfig()
-	db, err := dc.Connect(*m.databaseName)
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}(db)
-	CheckDatabaseConnection(db)
-	_, err = db.Exec(fs)
+	_, err = m.db.Exec(fs)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
