@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"gohtwind/utils"
 	"log"
 	"os"
 	"time"
@@ -19,6 +20,8 @@ Usage: gohtwind gen-schema [options]
 			Name of the schema to generate a schema for
 		-adapter string (required)
 			Name of the database to apply the migration to (use the name of the database in the config/database.yml file)
+		-env string
+			Environment to use (default "development")
 	Info:
 		* Generates a schema for the specified database 
 		* The schema is generated in the db/schemas folder	
@@ -32,6 +35,7 @@ type schema struct {
 	databaseName *string
 	adapter      *string
 	schemaName   *string
+	env          *string
 	projectPath  string
 	db           *sql.DB
 }
@@ -46,15 +50,15 @@ func newSchema() *schema {
 	databaseName := genSchemaFlags.String("database-name", "", "Name of the database to generate a schema for")
 	adapter := genSchemaFlags.String("adapter", "", "Database adapter to use")
 	sc := genSchemaFlags.String("schema-name", "", "Name of the schema to generate a schema for (postgres only)")
+	env := genSchemaFlags.String("env", "development", "Environment (production or development)")
+	if len(os.Args) < 2 {
+		fmt.Println(genSchemaUsageString())
+		os.Exit(1)
+	}
+	genSchemaFlags.Parse(os.Args[2:])
+	utils.SetUpEnv(*env)
 	dc := NewDBsConfig()
 	db, err := dc.Connect(*databaseName)
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}(db)
-	CheckDatabaseConnection(db)
 	return &schema{
 		flagSet:      genSchemaFlags,
 		databaseName: databaseName,
@@ -67,11 +71,6 @@ func newSchema() *schema {
 
 func GenSchema() {
 	s := newSchema()
-	if len(os.Args) < 2 {
-		fmt.Println(genSchemaUsageString())
-		os.Exit(1)
-	}
-	s.flagSet.Parse(os.Args[2:])
 	if *s.databaseName == "" || *s.adapter == "" {
 		fmt.Println(genSchemaUsageString())
 		os.Exit(1)
@@ -82,6 +81,13 @@ func GenSchema() {
 	}
 	f := s.createSchemaFile()
 	defer f.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(s.db)
+	CheckDatabaseConnection(s.db)
 	s.writeDDLs(f)
 }
 
@@ -120,7 +126,7 @@ func (s *schema) writeDDLs(f *os.File) {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
-		_, err = f.WriteString(fmt.Sprintf("%s;\n", ddl))
+		_, err = f.WriteString(fmt.Sprintf("%s;\n\n", ddl))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)

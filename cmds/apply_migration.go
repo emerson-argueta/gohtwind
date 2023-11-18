@@ -55,16 +55,14 @@ func newApplyMigration() *applyMigration {
 	databaseName := applyMigrationFlags.String("database-name", "", "Name of the database to apply the migration to (use the name of the database in the config/database.yml file)")
 	schemaName := applyMigrationFlags.String("schema-name", "", "Name of the schema to apply the migration to (use the name of the schema in the config/database.yml file)")
 	env := applyMigrationFlags.String("env", "development", "Environment to use (development, test, production)")
+	if len(os.Args) < 2 {
+		fmt.Println(applyMigrationUsageString())
+		os.Exit(1)
+	}
+	applyMigrationFlags.Parse(os.Args[2:])
 	utils.SetUpEnv(*env)
 	dc := NewDBsConfig()
 	db, err := dc.Connect(*databaseName)
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}(db)
-	CheckDatabaseConnection(db)
 	return &applyMigration{
 		flagSet:      applyMigrationFlags,
 		fileName:     fileName,
@@ -79,11 +77,6 @@ func newApplyMigration() *applyMigration {
 
 func ApplyMigration() {
 	m := newApplyMigration()
-	if len(os.Args) < 2 {
-		fmt.Println(applyMigrationUsageString())
-		os.Exit(1)
-	}
-	m.flagSet.Parse(os.Args[2:])
 	if *m.fileName == "" || *m.adapter == "" || *m.databaseName == "" {
 		fmt.Println(applyMigrationUsageString())
 		os.Exit(1)
@@ -92,6 +85,13 @@ func ApplyMigration() {
 		fmt.Println(applyMigrationUsageString())
 		os.Exit(1)
 	}
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(m.db)
+	CheckDatabaseConnection(m.db)
 	m.applyMigration()
 }
 
