@@ -65,7 +65,7 @@ func newSchema() *schema {
 	}
 }
 
-func GenSchema(args []string) {
+func GenSchema() {
 	s := newSchema()
 	if len(os.Args) < 2 {
 		fmt.Println(genSchemaUsageString())
