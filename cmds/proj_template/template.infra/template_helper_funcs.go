@@ -69,8 +69,7 @@ func formFunc(model interface{}, action string, method string) template.HTML {
 	for i := 0; i < modelType.NumField(); i++ {
 		name := modelType.Field(i).Tag.Get("form")
 		value := getValue(modelValue.Field(i))
-		// if the name is "-" then skip this field
-		if name == "-" {
+		if name == "-" || name == "" {
 			continue
 		}
 		if name == "createdat" || name == "updatedat" {
