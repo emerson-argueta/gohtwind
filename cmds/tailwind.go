@@ -3,6 +3,7 @@ package cmds
 import (
 	"fmt"
 	"gohtwind/utils"
+	"os"
 	"runtime"
 	"strings"
 )
@@ -33,6 +34,7 @@ func (t *TailwindCompiler) downloadCompiler(projectName string, dest string) {
 	dl := t.envMap[t.downloadURLVar]
 	err := utils.DownloadFile(dl, dest, projectName)
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
 	}
 }
