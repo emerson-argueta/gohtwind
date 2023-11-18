@@ -11,7 +11,7 @@ func Create{{MODEL_NAME}}Repo(dbs map[string]*sql.DB, m *{{MODEL_NAME}}) error {
 	if field.IsValid() && field.CanSet() {
 		field.Set(reflect.ValueOf(t))
 	}
-	stmt := jet.{{MODEL_NAME}}.INSERT().Model(*m)
+	stmt := jet.{{MODEL_NAME}}.INSERT().MODEL(*m)
 	log.Println(stmt.DebugSql())
 	_, err := stmt.Exec(dbs["{{DB_NAME}}"])
 	return err
