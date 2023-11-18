@@ -38,7 +38,7 @@ func UpdateColumns(model interface{}) mysql.ColumnList {
 		fieldType := t.Field(i)
 
 		// Skip unexported fields and fields tagged with form:"-"
-		if fieldType.PkgPath != "" || fieldType.Tag.Get("form") == "-" {
+		if fieldType.PkgPath != "" || fieldType.Tag.Get("form") == "-" || fieldType.Tag.Get("form") == "" {
 			continue
 		}
 
