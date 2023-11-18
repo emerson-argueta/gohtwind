@@ -87,12 +87,6 @@ func GenMigration() {
 }
 
 func (m *migration) genMigration() {
-	// TODO: Implement
-	/* Generates a migration file for the specified model
-	* The migration file is generated in the db/migrations/<database_name> folder
-	* The migration file is named <timestamp>_<feature_name>_<table_name>.sql
-	* The migration file contains a create table statement, an alter table statement, or a drop table statement
-	 */
 	t := time.Now().Format("20060102150405")
 	fn := fmt.Sprintf("%s_%s.sql", t, *m.tableName)
 	if *m.featName != "" {
