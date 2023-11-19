@@ -118,10 +118,17 @@ func GenerateStructWithTags(name string, fields []FieldInfo, tagNames []string) 
 	for _, field := range fields {
 		sb.WriteString("\t" + field.Name + " " + field.Type + " `")
 		for _, tag := range field.Tag {
+			if tag.Name == "form" && (tag.Value == "createdat" || tag.Value == "updatedat") {
+				continue
+			}
 			sb.WriteString(fmt.Sprintf("%s:\"%s\" ", tag.Name, tag.Value))
 		}
 		for _, tagName := range tagNames {
-			sb.WriteString(fmt.Sprintf("%s:\"%s\" ", tagName, strings.ToLower(field.Name)))
+			tagValue := strings.ToLower(field.Name)
+			if tagName == "form" && (tagValue == "createdat" || tagValue == "updatedat") {
+				continue
+			}
+			sb.WriteString(fmt.Sprintf("%s:\"%s\" ", tagName, tagValue))
 		}
 		sb.WriteString("`\n")
 	}
