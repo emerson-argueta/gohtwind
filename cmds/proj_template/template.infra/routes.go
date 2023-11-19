@@ -41,8 +41,11 @@ func NewRouter(routes []Route) *Router {
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	methodOverride := req.FormValue("_method")
 	directKey := fmt.Sprintf("%s %s", req.Method, req.URL.Path)
-	if methodOverride == "PATCH" {
+	switch methodOverride {
+	case "PATCH":
 		directKey = fmt.Sprintf("%s %s", "PATCH", req.URL.Path)
+	case "DELETE":
+		directKey = fmt.Sprintf("%s %s", "DELETE", req.URL.Path)
 	}
 	if routeInfo, ok := r.routes[directKey]; ok {
 		routeInfo.handler.ServeHTTP(w, req)
@@ -67,8 +70,11 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 func keyAndID(req *http.Request) (string, string) {
 	method := req.Method
 	methodOverride := req.FormValue("_method")
-	if methodOverride == "PATCH" {
+	switch methodOverride {
+	case "PATCH":
 		method = "PATCH"
+	case "DELETE":
+		method = "DELETE"
 	}
 	pathSegments := strings.Split(strings.Trim(req.URL.Path, "/"), "/") // Trim is used to remove any leading or trailing slashes
 	switch len(pathSegments) {
