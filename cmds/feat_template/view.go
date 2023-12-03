@@ -23,11 +23,3 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 	}
 	fv.RenderTemplate(w, tmpl, data)
 }
-
-func renderPartialTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	fv, err := featureView()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	fv.RenderPartialTemplate(w, tmpl, data)
-}

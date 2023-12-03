@@ -39,7 +39,7 @@ func (h *Handle) Read(w http.ResponseWriter, r *http.Request) {
     item := "test" // This is a placeholder. Replace 'Item' with your actual data structure.
 
     // Render the read view with the fetched item details
-    renderPartialTemplate(w, "{{FEATURE_NAME}}/templates/read.html", map[string]interface{}{
+    renderTemplate(w, "{{FEATURE_NAME}}/templates/read.html", map[string]interface{}{
         "Item": item, // Pass the item as data to the template
         "Model": struct{Test string}{}, // Pass the model dto here
     })

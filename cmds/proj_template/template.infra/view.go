@@ -71,21 +71,3 @@ func (v *View) RenderTemplate(w http.ResponseWriter, tmpl string, data interface
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
-
-func (v *View) RenderPartialTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	// Get the specific template entry (without the base layout)
-	partial, err := v.templates.Clone()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	partial, err = partial.New("").ParseFiles(tmpl)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = partial.ExecuteTemplate(w, tmpl, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
