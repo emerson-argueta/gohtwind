@@ -1,0 +1,18 @@
+<html class="h-full bg-gray-50" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Town</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/output.css">
+    <script src="/static/js/htmx.min.js"></script>
+    <script src="/static/js/util.js"></script>
+</head>
+<body hx-on:keydown="handleEscapeKey(event, '.dropdown')" class="h-full">
+<div>
+    <div class="">
+        <main class="p-2">
+            {{ template "content" . }}
+        </main>
+    </div>
+</div>
+</body>
+</html>

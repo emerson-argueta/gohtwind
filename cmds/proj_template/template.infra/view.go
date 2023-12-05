@@ -8,14 +8,20 @@ import (
 	"strings"
 )
 
-type View struct {
-	templates *template.Template
-	basePath  string
-	fp        string
+type ViewTemplate struct {
+	BasePath     string
+	Path         string
+	PartialPaths []string
 }
 
-func NewView(basePath string, fp string) (*View, error) {
-	allTemplatePaths, err := collectAllTemplatePaths(basePath, fp)
+type View struct {
+	templates    *template.Template
+	viewTemplate *ViewTemplate
+}
+
+func NewView(vt *ViewTemplate) (*View, error) {
+	paths := append([]string{vt.BasePath, vt.Path}, vt.PartialPaths...)
+	allTemplatePaths, err := collectAllTemplatePaths(paths...)
 	if err != nil {
 		return nil, err
 	}
@@ -32,9 +38,8 @@ func NewView(basePath string, fp string) (*View, error) {
 	}
 
 	return &View{
-		basePath:  basePath,
-		fp:        fp,
-		templates: templates,
+		templates:    templates,
+		viewTemplate: vt,
 	}, nil
 }
 
@@ -65,8 +70,8 @@ func collectTemplatePaths(root string, ext string) ([]string, error) {
 	return templatePaths, err
 }
 
-func (v *View) RenderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	err := v.templates.ExecuteTemplate(w, tmpl, data)
+func (v *View) RenderTemplate(w http.ResponseWriter, data interface{}) {
+	err := v.templates.ExecuteTemplate(w, v.viewTemplate.Path, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

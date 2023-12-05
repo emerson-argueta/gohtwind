@@ -16,7 +16,17 @@ func (h *Handle) List(w http.ResponseWriter, r *http.Request) {
     items := []string{"test0", "test1", "test2"} // This is a placeholder. Replace 'Item' with your actual data structure.
 
     // Render the list view with the fetched items
-    renderTemplate(w, "{{FEATURE_NAME}}/templates/list.html", map[string]interface{}{
+    vt := infra.ViewTemplate{
+        BasePath: "templates",
+        Path:     "{{FEATURE_NAME}}/templates/list.html",
+        PartialPaths: []string{
+            "{{FEATURE_NAME}}/templates/_read.html",
+            "{{FEATURE_NAME}}/templates/_update.html",
+            "{{FEATURE_NAME}}/templates/_delete.html",
+            "{{FEATURE_NAME}}/templates/_create.html",
+        },
+    }
+    renderTemplate(w, &vt, map[string]interface{}{
         "Items": items, // Pass the items as data to the template
         "Model": struct{Test string}{}, // Pass the model dto here
     })
@@ -38,8 +48,11 @@ func (h *Handle) Read(w http.ResponseWriter, r *http.Request) {
     // TODO: Fetch item details based on an identifier from 'r', then put it in 'item'
     item := "test" // This is a placeholder. Replace 'Item' with your actual data structure.
 
-    // Render the read view with the fetched item details
-    renderTemplate(w, "{{FEATURE_NAME}}/templates/read.html", map[string]interface{}{
+    vt := infra.ViewTemplate{
+        BasePath: "templates",
+        Path:     "{{FEATURE_NAME}}/templates/read.html",
+    }
+    renderTemplate(w, &vt, map[string]interface{}{
         "Item": item, // Pass the item as data to the template
         "Model": struct{Test string}{}, // Pass the model dto here
     })
