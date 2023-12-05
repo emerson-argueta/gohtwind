@@ -51,7 +51,7 @@ func (h *Handle) Read(w http.ResponseWriter, r *http.Request) {
 
     vt := infra.ViewTemplate{
         BasePath: "templates",
-        Path:     "{{FEATURE_NAME}}/templates/read.html",
+        Path:     "{{FEATURE_NAME}}/templates/item.html",
     }
     renderTemplate(w, &vt, map[string]interface{}{
         "Item": item, // Pass the item as data to the template
