@@ -1,6 +1,7 @@
 package {{FEATURE_NAME}}
 
 import (
+    "{{PROJECT_NAME}}/infra"
     "database/sql"
     "net/http"
     "fmt"
