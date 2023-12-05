@@ -21,10 +21,10 @@ func (h *Handle) List(w http.ResponseWriter, r *http.Request) {
         BasePath: "templates",
         Path:     "{{FEATURE_NAME}}/templates/list.html",
         PartialPaths: []string{
-            "{{FEATURE_NAME}}/templates/_read.html",
-            "{{FEATURE_NAME}}/templates/_update.html",
-            "{{FEATURE_NAME}}/templates/_delete.html",
-            "{{FEATURE_NAME}}/templates/_create.html",
+            "{{FEATURE_NAME}}/templates/read.html",
+            "{{FEATURE_NAME}}/templates/update.html",
+            "{{FEATURE_NAME}}/templates/delete.html",
+            "{{FEATURE_NAME}}/templates/create.html",
         },
     }
     renderTemplate(w, &vt, map[string]interface{}{
