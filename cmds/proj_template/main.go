@@ -35,6 +35,9 @@ func main() {
 	http.Handle("/static/", infra.LoggingMiddleware(http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/")))))
 	// TODO: Setup routes and middleware
 
+	// Then activate the routes
+	infra.ActivateRoutes()
+
 	log.Printf("Server started on :%s\n", port)
 	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
