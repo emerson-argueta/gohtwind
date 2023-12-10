@@ -283,7 +283,7 @@ Contributions to Gohtwind are welcome. Please read our [Contributing Guide](<lin
 
 ## License
 
-Gohtwind is licensed under the [LGPL License](<link-to-license-file>).
+Gohtwind is licensed under the [MIT License](<link-to-license-file>).
 
 ---
 
