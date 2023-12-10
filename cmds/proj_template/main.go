@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"{{PROJECT_NAME}}/auth"
 	"{{PROJECT_NAME}}/infra"
 )
 
@@ -35,6 +36,7 @@ func main() {
 	http.Handle("/static/", infra.LoggingMiddleware(http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/")))))
 	// TODO: Setup routes and middleware
 
+	auth.SetupRoutes(dbs, infra.LoggingMiddleware)
 	// Then activate the routes
 	infra.ActivateRoutes()
 
