@@ -73,15 +73,18 @@ cd town
 gohtwind gen-feature market 
 ```
 4. Add feature routes to the `main.go` in the root of your project directory:
+
 ```go
 package main
 
 // the ide will automatically import the packages for you
 // if not, you can manually import them like so:
-import(
+import (
   // ...
   // "<project_name>/infra"
   "town/infra"
+  // "<project_name>/auth"
+  "town/auth"
   // "<project_name>/<feature_name>"
   "town/market"
   // ...
@@ -89,7 +92,20 @@ import(
 
 func main() {
   // ...
+}
+
+func setUpEnv() {
+  // ...
+}
+
+func setUpDBs() {
+  // ...
+}
+
+func setUpRoutes() {
+  // ...
   http.Handle("/static/", infra.LoggingMiddleware(http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/")))))
+  auth.SetupRoutes(dbs, infra.LoggingMiddleware)
   /**
     Replace feature_name with the name of your feature like so:
     feature_name_1.SetupRoutes(dbs, infra.LoggingMiddleware)
@@ -100,13 +116,12 @@ func main() {
      **/
   // ex: 
   market.SetupRoutes(dbs, infra.LoggingMiddleware)
+  
+  // Activate the routes
+  infra.ActivateRoutes()
 
-  log.Printf("Server started on :%s\n", port)
-  err = http.ListenAndServe(":"+port, nil)
-  if err != nil {
-    log.Fatal(err)
-  }
 }
+```
 ````
 5. Optional: Run containerized database for development:
 ```bash

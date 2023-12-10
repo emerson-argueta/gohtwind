@@ -73,15 +73,18 @@ cd town
 gohtwind gen-feature market 
 ```
 4. Add feature routes to the `main.go` in the root of your project directory:
+
 ```go
 package main
 
 // the ide will automatically import the packages for you
 // if not, you can manually import them like so:
-import(
+import (
   // ...
   // "<project_name>/infra"
   "town/infra"
+  // "<project_name>/auth"
+  "town/auth"
   // "<project_name>/<feature_name>"
   "town/market"
   // ...
@@ -89,7 +92,20 @@ import(
 
 func main() {
   // ...
+}
+
+func setUpEnv() {
+  // ...
+}
+
+func setUpDBs() {
+  // ...
+}
+
+func setUpRoutes() {
+  // ...
   http.Handle("/static/", infra.LoggingMiddleware(http.StripPrefix("/static/", http.FileServer(http.Dir("./frontend/static/")))))
+  auth.SetupRoutes(dbs, infra.LoggingMiddleware)
   /**
     Replace feature_name with the name of your feature like so:
     feature_name_1.SetupRoutes(dbs, infra.LoggingMiddleware)
@@ -100,13 +116,12 @@ func main() {
      **/
   // ex: 
   market.SetupRoutes(dbs, infra.LoggingMiddleware)
+  
+  // Activate the routes
+  infra.ActivateRoutes()
 
-  log.Printf("Server started on :%s\n", port)
-  err = http.ListenAndServe(":"+port, nil)
-  if err != nil {
-    log.Fatal(err)
-  }
 }
+```
 ````
 5. Optional: Run containerized database for development:
 ```bash
@@ -265,12 +280,12 @@ gohtwind gen-form -feature-name=<feature_name> -model-name=<model_name>
 ```
 * This command replaces {{GEN_FORM}} in the specified template with a form for the specified model
 * The form is generated using the model's form tags
-* When an instance name is provided, the form is generated with the instance's values
+* When an instance name is provided, the form is generated with the instance's values 
 * The `-feature-name` flag specifies the name of the feature the form is for.
-* The `-model-name` flag specifies the name of the model the form is for.
-* The  `-template-name` flag specifies the name of the template the form is for.
+* The `-model-name` flag specifies the name of the model the form is for. 
+* The  `-template-name` flag specifies the name of the template the form is for. 
 * The  `-instance-name` flag specifies the name of the instance the form is for. Use this flag for update forms. Omit this flag for create forms.
-* The `-action` flag specifies the action of the form.
+* The `-action` flag specifies the action of the form. 
 
 3. To start the development server run the script:
 ```bash
