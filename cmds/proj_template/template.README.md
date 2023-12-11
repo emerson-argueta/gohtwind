@@ -116,13 +116,12 @@ func setUpRoutes() {
      **/
   // ex: 
   market.SetupRoutes(dbs, infra.LoggingMiddleware)
-  
+
   // Activate the routes
   infra.ActivateRoutes()
 
 }
 ```
-````
 5. Optional: Run containerized database for development:
 ```bash
 docker build -t gohtwind-db -f Dockerfile.db .
@@ -280,12 +279,12 @@ gohtwind gen-form -feature-name=<feature_name> -model-name=<model_name>
 ```
 * This command replaces {{GEN_FORM}} in the specified template with a form for the specified model
 * The form is generated using the model's form tags
-* When an instance name is provided, the form is generated with the instance's values 
+* When an instance name is provided, the form is generated with the instance's values
 * The `-feature-name` flag specifies the name of the feature the form is for.
-* The `-model-name` flag specifies the name of the model the form is for. 
-* The  `-template-name` flag specifies the name of the template the form is for. 
+* The `-model-name` flag specifies the name of the model the form is for.
+* The  `-template-name` flag specifies the name of the template the form is for.
 * The  `-instance-name` flag specifies the name of the instance the form is for. Use this flag for update forms. Omit this flag for create forms.
-* The `-action` flag specifies the action of the form. 
+* The `-action` flag specifies the action of the form.
 
 3. To start the development server run the script:
 ```bash

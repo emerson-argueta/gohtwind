@@ -122,7 +122,6 @@ func setUpRoutes() {
 
 }
 ```
-````
 5. Optional: Run containerized database for development:
 ```bash
 docker build -t gohtwind-db -f Dockerfile.db .
