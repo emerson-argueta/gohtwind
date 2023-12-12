@@ -15,7 +15,7 @@ type Responder struct {
 
 func (resp *Responder) Respond(w http.ResponseWriter, r *http.Request, code int, templateName string, data authboss.HTMLData) error {
 	path := fmt.Sprintf("auth/templates/%s.html", templateName)
-	resp.vt = &infra.ViewTemplate{Path: path}
+	resp.vt.Path = path
 	fv, err := infra.NewView(resp.vt)
 	if err != nil {
 		return err
