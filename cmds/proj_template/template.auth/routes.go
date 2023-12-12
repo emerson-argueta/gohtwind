@@ -3,7 +3,7 @@ package auth
 import (
 	"database/sql"
 	"net/http"
-	"town/infra"
+	"{{PROJECT_NAME}}/infra"
 )
 
 var feature_router *infra.Router
