@@ -8,7 +8,6 @@ import (
 	"github.com/volatiletech/authboss/v3"
 	"net/http"
 	"os"
-	"time"
 )
 
 type SessionState struct {
@@ -26,16 +25,16 @@ func (c *ClientState) Get(key string) (string, bool) {
 }
 
 func (s SessionState) ReadState(request *http.Request) (authboss.ClientState, error) {
-	cookie, err := request.Cookie("sessionId")
+	cookie, err := request.Cookie(authboss.SessionKey)
+	if err != nil && err == http.ErrNoCookie {
+		return &ClientState{d: make(map[string]string)}, nil
+	}
 	if err != nil {
 		return nil, err
 	}
 	sk := os.Getenv("GOHTWIND_SECRET_KEY")
 	hsid := sha256.Sum256([]byte(fmt.Sprintf("%s%s", cookie.Value, sk)))
-	sd, exp := s.getFromDatabase(hsid[:])
-	if time.Now().After(exp) {
-		return nil, fmt.Errorf("session expired")
-	}
+	sd := s.getFromDatabase(hsid[:])
 	res := &ClientState{d: sd}
 	return res, nil
 }
@@ -47,33 +46,30 @@ func (s SessionState) WriteState(writer http.ResponseWriter, state authboss.Clie
 		return err
 	}
 	isSecure := os.Getenv("ENV") == "production"
-	sdur := SessionDuration * time.Hour
 	val := base64.StdEncoding.EncodeToString(sid)
 	http.SetCookie(writer, &http.Cookie{
-		Name:     "sessionId",
+		Name:     authboss.SessionKey,
 		Value:    val,
 		HttpOnly: true,
 		Secure:   isSecure,
 		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(sdur.Seconds()),
 	})
 	sk := os.Getenv("GOHTWIND_SECRET_KEY")
 	hsid := sha256.Sum256([]byte(fmt.Sprintf("%s%s", val, sk)))
-	exp := time.Now().Add(sdur)
-	err = s.saveToDatabase(hsid[:], state, exp)
+	err = s.saveToDatabase(hsid[:], state)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s SessionState) getFromDatabase(bytes []byte) (map[string]string, time.Time) {
+func (s SessionState) getFromDatabase(bytes []byte) map[string]string {
 	// TODO: get from database
 	res := make(map[string]string)
-	return res, time.Now()
+	return res
 }
 
-func (s SessionState) saveToDatabase(bytes []byte, state authboss.ClientState, exp time.Time) error {
+func (s SessionState) saveToDatabase(bytes []byte, state authboss.ClientState) error {
 	// TODO: save to database
 	return nil
 }
