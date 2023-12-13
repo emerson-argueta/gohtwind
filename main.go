@@ -18,18 +18,29 @@ Usage: gohtwind <command> [options]
 			Generate models from a database
 		gen-repository
 			Generate a repository for a feature
+		gen-form
+			Generate a form for a model
+		gen-migration
+			Generate a migration file
+		apply-migration
+			Apply a migration file
+		gen-schema
+			Generate a schema file
+		gen-encryption-key
+			Generates a 32 byte encryption key for use with AES-256
 `
 }
 
 var cmdFuncs = map[string]func(){
-	"new":             cmds.GenProject,
-	"gen-feature":     cmds.GenFeature,
-	"gen-models":      cmds.GenModels,
-	"gen-repository":  cmds.GenRepository,
-	"gen-form":        cmds.GenForm,
-	"gen-migration":   cmds.GenMigration,
-	"apply-migration": cmds.ApplyMigration,
-	"gen-schema":      cmds.GenSchema,
+	"new":                cmds.GenProject,
+	"gen-feature":        cmds.GenFeature,
+	"gen-models":         cmds.GenModels,
+	"gen-repository":     cmds.GenRepository,
+	"gen-form":           cmds.GenForm,
+	"gen-migration":      cmds.GenMigration,
+	"apply-migration":    cmds.ApplyMigration,
+	"gen-schema":         cmds.GenSchema,
+	"gen-encryption-key": cmds.GenEncryptionKey,
 }
 
 func main() {
