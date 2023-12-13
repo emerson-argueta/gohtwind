@@ -28,6 +28,8 @@ Usage: gohtwind <command> [options]
 			Generate a schema file
 		gen-encryption-key
 			Generates a 32 byte encryption key for use with AES-256
+		gen-secret-key
+			Generates a 32 byte secret key for use with HMAC-SHA256
 `
 }
 
@@ -41,6 +43,7 @@ var cmdFuncs = map[string]func(){
 	"apply-migration":    cmds.ApplyMigration,
 	"gen-schema":         cmds.GenSchema,
 	"gen-encryption-key": cmds.GenEncryptionKey,
+	"gen-secret-key":     cmds.GenEncryptionKey,
 }
 
 func main() {
