@@ -4,10 +4,12 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/volatiletech/authboss/v3"
 	"net/http"
 	"os"
+	"{{PROJECT_NAME}}/infra"
 )
 
 type SessionState struct {
@@ -34,9 +36,8 @@ func (s SessionState) ReadState(request *http.Request) (authboss.ClientState, er
 	}
 	sk := os.Getenv("GOHTWIND_SECRET_KEY")
 	hsid := sha256.Sum256([]byte(fmt.Sprintf("%s%s", cookie.Value, sk)))
-	sd := s.getFromDatabase(hsid[:])
-	res := &ClientState{d: sd}
-	return res, nil
+	cs := s.getFromDatabase(hsid[:])
+	return cs, nil
 }
 
 func (s SessionState) WriteState(writer http.ResponseWriter, state authboss.ClientState, events []authboss.ClientStateEvent) error {
@@ -56,20 +57,37 @@ func (s SessionState) WriteState(writer http.ResponseWriter, state authboss.Clie
 	})
 	sk := os.Getenv("GOHTWIND_SECRET_KEY")
 	hsid := sha256.Sum256([]byte(fmt.Sprintf("%s%s", val, sk)))
-	err = s.saveToDatabase(hsid[:], state)
+	nsm := state.(*ClientState).d
+	for _, event := range events {
+		nsm[event.Key] = event.Value
+	}
+	err = s.saveToDatabase(hsid[:], nsm)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s SessionState) getFromDatabase(bytes []byte) map[string]string {
+func (s SessionState) getFromDatabase(hashedSessionId []byte) *ClientState {
 	// TODO: get from database
-	res := make(map[string]string)
+	d := make(map[string]string)
+	res := &ClientState{d: d}
 	return res
 }
 
-func (s SessionState) saveToDatabase(bytes []byte, state authboss.ClientState) error {
-	// TODO: save to database
+func (s SessionState) saveToDatabase(hashedSessionId []byte, newStateMap map[string]string) error {
+	fmt.Println(newStateMap)
+	//then to json
+	j, err := json.Marshal(newStateMap)
+	if err != nil {
+		return err
+	}
+	//then the json should be encrypted, then the encrypted json should be saved to database
+	ej, err := infra.Encrypt(j)
+	if err != nil {
+		return err
+	}
+	fmt.Println(ej)
+
 	return nil
 }
