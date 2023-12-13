@@ -43,7 +43,7 @@ var cmdFuncs = map[string]func(){
 	"apply-migration":    cmds.ApplyMigration,
 	"gen-schema":         cmds.GenSchema,
 	"gen-encryption-key": cmds.GenEncryptionKey,
-	"gen-secret-key":     cmds.GenEncryptionKey,
+	"gen-secret-key":     cmds.GenSecretKey,
 }
 
 func main() {
