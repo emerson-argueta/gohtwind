@@ -15,10 +15,9 @@ function toggleBetween(selector, subsetClasses1Str, subsetClasses2Str) {
 
 function exclusiveSelectionToggle(targetElem, selector, defaultClassesStr, selectedClassesStr) {
     var elems = document.querySelectorAll(selector);
-    const defaultClasses = defaultClassesStr.split(' ');
-    const selectedClasses = selectedClassesStr.split(' ');
+    const defaultClasses = defaultClassesStr.split(' ').filter(c => c);
+    const selectedClasses = selectedClassesStr.split(' ').filter(c => c);
     elems.forEach(elem => {
-        console.log('elem: ', elem, 'targetElem: ', targetElem, 'elem === targetElem: ', elem === targetElem);
         if (elem === targetElem) {
             selectedClasses.forEach(c => elem.classList.add(c));
             defaultClasses.forEach(c => elem.classList.remove(c));
