@@ -27,10 +27,13 @@ func (h *Handle) List(w http.ResponseWriter, r *http.Request) {
             "{{FEATURE_NAME}}/templates/create.html",
         },
     }
-    infra.RenderTemplate(w, &vt, map[string]interface{}{
+    err := infra.RenderTemplate(w, &vt, map[string]interface{}{
         "Items": items, // Pass the items as data to the template
         "Model": struct{Test string}{}, // Pass the model dto here
     })
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
 }
 
 // Create handles the creation of a new item
@@ -53,10 +56,14 @@ func (h *Handle) Read(w http.ResponseWriter, r *http.Request) {
         BasePath: "templates",
         Path:     "{{FEATURE_NAME}}/templates/item.html",
     }
-    infra.RenderTemplate(w, &vt, map[string]interface{}{
+    err := infra.RenderTemplate(w, &vt, map[string]interface{}{
         "Item": item, // Pass the item as data to the template
         "Model": struct{Test string}{}, // Pass the model dto here
     })
+
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
 }
 
 // Update handles updating an existing item
