@@ -24,14 +24,11 @@
             </div>
         </div>
     </div>
-
-    <!-- Desktop sidebar -->
-    <div class="hidden xl:fixed xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col">
+    <div id="desktop-sidebar" class="hidden xl:fixed xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col">
         {{ template "templates/sidebar.html" "desktop" }}
     </div>
-
-    <div class="xl:pl-72">
-        <button hx-on:click="htmx.toggleClass('#mobile-sidebar', 'hidden')" type="button" class="p-2.5 text-black xl:hidden">
+    <div id="main-container" class="xl:pl-72">
+        <button type="button" class="p-2.5 text-black xl:hidden" hx-on:click="htmx.toggleClass('#mobile-sidebar', 'hidden')">
             <span class="sr-only">Open sidebar</span>
             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" />
