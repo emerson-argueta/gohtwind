@@ -16,12 +16,7 @@ type Responder struct {
 func (resp *Responder) Respond(w http.ResponseWriter, r *http.Request, code int, templateName string, data authboss.HTMLData) error {
 	path := fmt.Sprintf("auth/templates/%s.html", templateName)
 	resp.vt.Path = path
-	fv, err := infra.NewView(resp.vt)
-	if err != nil {
-		return err
-	}
-	fv.RenderTemplate(w, data)
-	return nil
+	return infra.RenderTemplate(w, resp.vt, data)
 }
 
 type Renderer struct{ authboss.Renderer }

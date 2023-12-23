@@ -70,9 +70,18 @@ func collectTemplatePaths(root string, ext string) ([]string, error) {
 	return templatePaths, err
 }
 
-func (v *View) RenderTemplate(w http.ResponseWriter, data interface{}) {
+func (v *View) renderTemplate(w http.ResponseWriter, data interface{}) {
 	err := v.templates.ExecuteTemplate(w, v.viewTemplate.Path, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func RenderTemplate(w http.ResponseWriter, vt *ViewTemplate, data interface{}) error {
+	fv, err := NewView(vt)
+	if err != nil {
+		return err
+	}
+	fv.renderTemplate(w, data)
+	return nil
 }
