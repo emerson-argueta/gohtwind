@@ -4,9 +4,9 @@
     <title>Town</title>
     <link rel="stylesheet" type="text/css" href="/static/css/output.css">
     <script src="/static/js/htmx.min.js"></script>
-    <script src="/static/js/util.js"></script>
+    <script src="/static/js/interactions.js"></script>
 </head>
-<body hx-on:keydown="handleEscapeKey(event, '.dropdown')" class="h-full">
+<body hx-on:keydown="hideOnEscape(event, '.dropdown')" class="h-full">
 <div>
     <div id='mobile-sidebar' class="relative z-50 xl:hidden" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-gray-900/80"></div>
