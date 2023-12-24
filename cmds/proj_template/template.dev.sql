@@ -11,24 +11,24 @@ CREATE TABLE products
 create table school_years
 (
     id            bigint auto_increment PRIMARY KEY,
-    active        tinyint(1)  null,
-    year          int         null,
-    school_start  date        null,
-    school_end    date        null,
-    reg_start     date        null,
-    reg_end       date        null,
-    summer_start  date        null,
-    summer_end    date        null,
-    testing_start date        null,
-    testing_end   date        null,
+    active        tinyint(1) null,
+    year          int null,
+    school_start  date null,
+    school_end    date null,
+    reg_start     date null,
+    reg_end       date null,
+    summer_start  date null,
+    summer_end    date null,
+    testing_start date null,
+    testing_end   date null,
     description   varchar(10) null,
-    created_at    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 create table charters
 (
-    id            bigint auto_increment PRIMARY KEY,
+    id         bigint auto_increment PRIMARY KEY,
     name       varchar(255) not null,
     display    varchar(255) not null,
     created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -37,17 +37,16 @@ create table charters
 
 CREATE TABLE users
 (
-    id            bigint auto_increment PRIMARY KEY,
+    id         bigint auto_increment PRIMARY KEY,
     email      VARCHAR(255) NOT NULL UNIQUE,
     password   VARCHAR(255) NOT NULL,
     created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id)
+    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 create table employees
 (
-    id            bigint auto_increment PRIMARY KEY,
+    id             bigint auto_increment PRIMARY KEY,
     user_id        bigint null,
     first_name     varchar(100) null,
     last_name      varchar(100) null,
@@ -56,12 +55,12 @@ create table employees
     address        varchar(100) null,
     phone          varchar(100) null,
     home_email     varchar(100) null,
-    date_of_birth  date         null,
-    hire_date      date         null,
-    term_date      date         null,
-    suspended_date date         null,
-    created_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    date_of_birth  date null,
+    hire_date      date null,
+    term_date      date null,
+    suspended_date date null,
+    created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     constraint employees_UN
         unique (user_id),
     constraint employees_user_id_foreign
@@ -81,25 +80,25 @@ create index user_id
 
 create table students
 (
-    id            bigint auto_increment PRIMARY KEY,
-    user_id              bigint       null,
-    charter_id           bigint        default 1 not null,
+    id                   bigint auto_increment PRIMARY KEY,
+    user_id              bigint null,
+    charter_id           bigint             default 1 not null,
     teacher_of_record_id bigint,
-    enroll_status_id     bigint          default 3 not null,
-    enroll_start_date    date         null,
-    enroll_exit_date     date         null,
-    latest_schedule_year int          null,
+    enroll_status_id     bigint             default 3 not null,
+    enroll_start_date    date null,
+    enroll_exit_date     date null,
+    latest_schedule_year int null,
     first_name           varchar(255) null,
     middle_name          varchar(255) null,
     last_name            varchar(255) null,
-    birthdate            date         null,
+    birthdate            date null,
     gender               varchar(255) null,
     grade_level          varchar(255) null,
     address              varchar(255) null,
     parent_email         varchar(255) null,
     parent_phone         varchar(255) null,
-    created_at           TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at           TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     constraint STUDENT_FK_CHARTER_ID
         foreign key (charter_id) references charters (id)
             on update cascade on delete set null,
@@ -123,22 +122,22 @@ create index students_user_id_IDX
 
 create table sites
 (
-    id            bigint auto_increment PRIMARY KEY,
-    charter_id             bigint                                  null,
-    support_id             bigint                               null,
-    employee_id            bigint                                  null,
-    active                 tinyint(1)  default 1                null,
-    name                   text                                 not null,
-    display                varchar(255)                         not null,
-    description            varchar(255)                         null,
-    subnet                 varchar(18)                          null,
-    address                varchar(255)                         null,
-    phone                  varchar(15) default '(951) 000-0000' null,
-    public_ip_address      varchar(255)                         null,
-    is_primary             tinyint(1)  default 0                null,
-    access_control_enabled tinyint(1)  default 0                not null,
-    created_at             TIMESTAMP                            NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at             TIMESTAMP                            NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    id                     bigint auto_increment PRIMARY KEY,
+    charter_id             bigint null,
+    support_id             bigint null,
+    employee_id            bigint null,
+    active                 tinyint(1) default 1 null,
+    name                   text         not null,
+    display                varchar(255) not null,
+    description            varchar(255) null,
+    subnet                 varchar(18) null,
+    address                varchar(255) null,
+    phone                  varchar(15)           default '(951) 000-0000' null,
+    public_ip_address      varchar(255) null,
+    is_primary             tinyint(1) default 0 null,
+    access_control_enabled tinyint(1) default 0 not null,
+    created_at             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     constraint sites_name_unique
         unique (name),
     constraint sites_display_unique
@@ -162,64 +161,64 @@ create index sites_support_id_index
 
 create table course_types
 (
-    id            bigint auto_increment PRIMARY KEY,
+    id         bigint auto_increment PRIMARY KEY,
     name       varchar(100) null,
-    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 create table attendance_types
 (
-    id            bigint auto_increment PRIMARY KEY,
+    id         bigint auto_increment PRIMARY KEY,
     name       varchar(100) null,
-    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 create table absence_types
 (
-    id            bigint auto_increment PRIMARY KEY,
+    id         bigint auto_increment PRIMARY KEY,
     name       varchar(100) null,
-    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 create table tardy_types
 (
-    id            bigint auto_increment PRIMARY KEY,
+    id         bigint auto_increment PRIMARY KEY,
     name       varchar(100) null,
-    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 create table enrollment_types
 (
-    id            bigint auto_increment PRIMARY KEY,
+    id         bigint auto_increment PRIMARY KEY,
     name       varchar(100) null,
-    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 create table enroll_statuses
 (
-    id            bigint auto_increment PRIMARY KEY,
+    id         bigint auto_increment PRIMARY KEY,
     name       varchar(255) null,
-    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 create index enroll_statuses_description_index
     on enroll_statuses (name);
 
 create table courses
 (
-    id            bigint auto_increment PRIMARY KEY,
+    id             bigint auto_increment PRIMARY KEY,
     name           varchar(255) null,
-    school_year_id bigint       null,
-    employee_id    bigint       null,
+    school_year_id bigint null,
+    employee_id    bigint null,
     site_id        bigint null,
     course_type_id bigint null,
-    created_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     constraint courses_school_year_id_foreign
         foreign key (school_year_id) references school_years (id)
             on update cascade on delete set null,
@@ -236,9 +235,9 @@ create table courses
 
 create table sections
 (
-    id            bigint auto_increment PRIMARY KEY,
+    id         bigint auto_increment PRIMARY KEY,
     course_id  bigint null,
-    active     tinyint(1)         default 1 null,
+    active     tinyint(1) default 1 null,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     constraint sections_courses_id_fk
@@ -250,17 +249,17 @@ create index sections_course_id_index
 
 create table enrollments
 (
-    id            bigint auto_increment PRIMARY KEY,
-    added_by_id        bigint          null,
+    id                 bigint auto_increment PRIMARY KEY,
+    added_by_id        bigint null,
     student_id         bigint null,
-    employee_id        bigint          null,
-    course_id          bigint          null,
-    section_id         bigint          null,
-    enrollment_type_id bigint          not null,
-    start_date         date         null,
-    end_date           date         null,
-    created_at         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    employee_id        bigint null,
+    course_id          bigint null,
+    section_id         bigint null,
+    enrollment_type_id bigint    not null,
+    start_date         date null,
+    end_date           date null,
+    created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     constraint enrollments_enrollment_type_id_fk
         foreign key (enrollment_type_id) references enrollment_types (id)
             on update cascade on delete set null,
@@ -288,11 +287,11 @@ create index enrollments_section_id_index
 create table attendance
 (
     id                 bigint auto_increment PRIMARY KEY,
-    enrollment_id      bigint    null,
-    attendance_type_id bigint    null,
-    absence_type_id    bigint    null,
-    tardy_type_id      bigint    null,
-    attendance_date    date      null,
+    enrollment_id      bigint null,
+    attendance_type_id bigint null,
+    absence_type_id    bigint null,
+    tardy_type_id      bigint null,
+    attendance_date    date null,
     created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     constraint attendance_FK
@@ -313,10 +312,10 @@ create index index_attendance_on_enrollment_id
 
 -- seed with fake data
 INSERT INTO products (title, price, sku)
-VALUES ('Cheese',9.99,'x12334'),
-       ('Bread',1.99,'x12335'),
-       ('Milk',2.99,'x12336'),
-       ('Ice Cream',3.99,'x12337');
+VALUES ('Cheese', 9.99, 'x12334'),
+       ('Bread', 1.99, 'x12335'),
+       ('Milk', 2.99, 'x12336'),
+       ('Ice Cream', 3.99, 'x12337');
 
 INSERT INTO school_years (active, year, school_start, school_end, reg_start, reg_end, summer_start, summer_end, testing_start, testing_end, description)
 VALUES (0, 2020, '2020-08-01', '2021-06-30', '2020-07-01', '2020-07-31', '2021-07-01', '2021-07-31', '2021-08-01', '2021-08-31', '2020-2021'),
@@ -343,7 +342,8 @@ VALUES (1, 4, 'Test', 'Employee1', 'M', 'M', '123 Test St', '555-555-5555', '777
        (2, 5, 'Test', 'Employee2', 'M', 'M', '123 Test St', '555-555-5555', '777-777-7777', '1980-01-01', '2020-01-01', '2020-12-31', '2020-12-31'),
        (3, 6, 'Test', 'Employee3', 'M', 'M', '123 Test St', '555-555-5555', '777-777-7777', '1980-01-01', '2020-01-01', '2020-12-31', '2020-12-31');
 
-INSERT INTO students (id, user_id, charter_id, teacher_of_record_id, enroll_status_id, enroll_start_date, enroll_exit_date, latest_schedule_year, first_name, middle_name, last_name, birthdate, gender, grade_level, address, parent_email, parent_phone)
+INSERT INTO students (id, user_id, charter_id, teacher_of_record_id, enroll_status_id, enroll_start_date, enroll_exit_date, latest_schedule_year, first_name, middle_name,
+                      last_name, birthdate, gender, grade_level, address, parent_email, parent_phone)
 VALUES (1, 1, 1, 4, 1, '2020-08-01', '2021-06-30', 2021, 'Test', 'Student1', 'M', '2000-01-01', 'M', '1', '123 Test St', 'parent1@yahoo.com', '555-555-5555'),
        (2, 2, 1, 5, 1, '2020-08-01', '2021-06-30', 2021, 'Test', 'Student2', 'M', '2000-01-01', 'M', '1', '123 Test St', 'parent2@yahoo.com', '555-555-5555'),
        (3, 3, 1, 6, 1, '2020-08-01', '2021-06-30', 2021, 'Test', 'Student3', 'M', '2000-01-01', 'M', '1', '123 Test St', 'parent3@yahoo.com', '555-555-5555');
