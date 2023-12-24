@@ -137,7 +137,7 @@ create table sites
     support_id             bigint null,
     employee_id            bigint null,
     active                 tinyint(1) default 1 null,
-    name                   text         not null,
+    name                   varchar(255) not null,
     display                varchar(255) not null,
     description            varchar(255) null,
     subnet                 varchar(18) null,
@@ -255,7 +255,7 @@ create table enrollments
     employee_id        bigint null,
     course_id          bigint null,
     section_id         bigint null,
-    enrollment_type_id bigint    not null,
+    enrollment_type_id bigint null,
     start_date         date null,
     end_date           date null,
     created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -342,6 +342,12 @@ VALUES (1, 4, 'Test', 'Employee1', 'M', 'M', '123 Test St', '555-555-5555', '777
        (2, 5, 'Test', 'Employee2', 'M', 'M', '123 Test St', '555-555-5555', '777-777-7777', '1980-01-01', '2020-01-01', '2020-12-31', '2020-12-31'),
        (3, 6, 'Test', 'Employee3', 'M', 'M', '123 Test St', '555-555-5555', '777-777-7777', '1980-01-01', '2020-01-01', '2020-12-31', '2020-12-31');
 
+INSERT INTO enroll_statuses (id, name)
+VALUES (1, 'Active'),
+       (2, 'Pending'),
+       (3, 'Withdrawn'),
+       (4, 'Graduated');
+
 INSERT INTO students (id, user_id, charter_id, teacher_of_record_id, enroll_status_id, enroll_start_date, enroll_exit_date, latest_schedule_year, first_name, middle_name,
                       last_name, birthdate, gender, grade_level, address, parent_email, parent_phone)
 VALUES (1, 1, 1, 4, 1, '2020-08-01', '2021-06-30', 2021, 'Test', 'Student1', 'M', '2000-01-01', 'M', '1', '123 Test St', 'parent1@yahoo.com', '555-555-5555'),
@@ -376,12 +382,6 @@ INSERT INTO enrollment_types (id, name)
 VALUES (1, 'student'),
        (2, 'teacher'),
        (3, 'additional teacher');
-
-INSERT INTO enroll_statuses (id, name)
-VALUES (1, 'Active'),
-       (2, 'Pending'),
-       (3, 'Withdrawn'),
-       (4, 'Graduated');
 
 INSERT INTO courses (id, name, school_year_id, employee_id, site_id, course_type_id)
 VALUES (1, 'Test Course1', 2, 4, 1, 1),
