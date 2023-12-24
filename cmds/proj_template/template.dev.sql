@@ -350,9 +350,9 @@ VALUES (1, 'Active'),
 
 INSERT INTO students (id, user_id, charter_id, teacher_of_record_id, enroll_status_id, enroll_start_date, enroll_exit_date, latest_schedule_year, first_name, middle_name,
                       last_name, birthdate, gender, grade_level, address, parent_email, parent_phone)
-VALUES (1, 1, 1, 4, 1, '2020-08-01', '2021-06-30', 2021, 'Test', 'Student1', 'M', '2000-01-01', 'M', '1', '123 Test St', 'parent1@yahoo.com', '555-555-5555'),
-       (2, 2, 1, 5, 1, '2020-08-01', '2021-06-30', 2021, 'Test', 'Student2', 'M', '2000-01-01', 'M', '1', '123 Test St', 'parent2@yahoo.com', '555-555-5555'),
-       (3, 3, 1, 6, 1, '2020-08-01', '2021-06-30', 2021, 'Test', 'Student3', 'M', '2000-01-01', 'M', '1', '123 Test St', 'parent3@yahoo.com', '555-555-5555');
+VALUES (1, 1, 1, 1, 1, '2020-08-01', '2021-06-30', 2021, 'Test', 'Student1', 'M', '2000-01-01', 'M', '1', '123 Test St', 'parent1@yahoo.com', '555-555-5555'),
+       (2, 2, 1, 2, 1, '2020-08-01', '2021-06-30', 2021, 'Test', 'Student2', 'M', '2000-01-01', 'M', '1', '123 Test St', 'parent2@yahoo.com', '555-555-5555'),
+       (3, 3, 1, 3, 1, '2020-08-01', '2021-06-30', 2021, 'Test', 'Student3', 'M', '2000-01-01', 'M', '1', '123 Test St', 'parent3@yahoo.com', '555-555-5555');
 
 INSERT INTO sites (id, charter_id, support_id, employee_id, active, name, display, description, subnet, address, phone, public_ip_address, is_primary, access_control_enabled)
 VALUES (1, 1, 4, 4, 1, 'Test Site1', 'Test Site1', 'Test Site1', '255', '123 Test St', '555-555-5555', '127.0.0.1', 1, 1),
