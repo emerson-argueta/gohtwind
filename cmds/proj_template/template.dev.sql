@@ -384,9 +384,9 @@ VALUES (1, 'student'),
        (3, 'additional teacher');
 
 INSERT INTO courses (id, name, school_year_id, employee_id, site_id, course_type_id)
-VALUES (1, 'Test Course1', 2, 4, 1, 1),
-       (2, 'Test Course2', 2, 5, 2, 2),
-       (3, 'Test Course3', 2, 6, 3, 3);
+VALUES (1, 'Test Course1', 2, 1, 1, 1),
+       (2, 'Test Course2', 2, 2, 2, 2),
+       (3, 'Test Course3', 2, 3, 3, 3);
 
 INSERT INTO sections (id, course_id, active)
 VALUES (1, 1, 1),
@@ -394,6 +394,6 @@ VALUES (1, 1, 1),
        (3, 3, 1);
 
 INSERT INTO enrollments (id, added_by_id, student_id, employee_id, course_id, section_id, enrollment_type_id, start_date, end_date)
-VALUES (1, 4, 1, 4, 1, 1, 1, '2020-08-01', '2021-06-30'),
-       (2, 5, 2, 5, 2, 2, 2, '2020-08-01', '2021-06-30'),
-       (3, 6, 3, 6, 3, 3, 3, '2020-08-01', '2021-06-30');
+VALUES (1, 4, 1, 1, 1, 1, 1, '2020-08-01', '2021-06-30'),
+       (2, 5, 2, 2, 2, 2, 2, '2020-08-01', '2021-06-30'),
+       (3, 6, 3, 3, 3, 3, 3, '2020-08-01', '2021-06-30');
