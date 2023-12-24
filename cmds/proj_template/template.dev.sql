@@ -78,13 +78,23 @@ create index employees_term_date_index
 create index user_id
     on employees (user_id);
 
+create table enroll_statuses
+(
+    id         bigint auto_increment PRIMARY KEY,
+    name       varchar(255) null,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+create index enroll_statuses_description_index
+    on enroll_statuses (name);
+
 create table students
 (
     id                   bigint auto_increment PRIMARY KEY,
     user_id              bigint null,
-    charter_id           bigint             default 1 not null,
+    charter_id           bigint             default 1 null,
     teacher_of_record_id bigint,
-    enroll_status_id     bigint             default 3 not null,
+    enroll_status_id     bigint             default 3 null,
     enroll_start_date    date null,
     enroll_exit_date     date null,
     latest_schedule_year int null,
@@ -198,16 +208,6 @@ create table enrollment_types
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
-create table enroll_statuses
-(
-    id         bigint auto_increment PRIMARY KEY,
-    name       varchar(255) null,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-create index enroll_statuses_description_index
-    on enroll_statuses (name);
 
 create table courses
 (
