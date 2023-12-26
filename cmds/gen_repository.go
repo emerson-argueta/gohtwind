@@ -84,7 +84,7 @@ func GenRepository() {
 
 func (r *repo) genRepoFile() {
 	featPath := filepath.Join(r.projectPath, *r.featName)
-	f := fmt.Sprintf("%s_%s_%s_repo.go",
+	f := fmt.Sprintf("repo_%s_%s_%s.go",
 		strings.ToLower(*r.adapter),
 		strings.ToLower(*r.dbName),
 		strings.ToLower(*r.modelName),
