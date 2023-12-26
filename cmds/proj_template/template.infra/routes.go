@@ -9,39 +9,31 @@ import (
 )
 
 type Route struct {
-	Method  string
-	Handler http.HandlerFunc
-	Path    string
-}
-type internalRoute struct {
-	method  string
-	handler http.Handler
-	path    string
+	Method     string
+	HandleFunc http.HandlerFunc
+	Path       string
+	handler    http.Handler
 }
 
 var baseRouter *Router
 
 type Router struct {
 	http.Handler
-	routes map[string]internalRoute
+	routes map[string]Route
 }
 
 type Middleware func(http.Handler) http.Handler
 
 func init() {
-	baseRouter = &Router{routes: make(map[string]internalRoute)}
+	baseRouter = &Router{routes: make(map[string]Route)}
 }
 func NewRouter(routes []Route) *Router {
-	r := &Router{routes: make(map[string]internalRoute)}
+	r := &Router{routes: make(map[string]Route)}
 	for _, route := range routes {
 		k := fmt.Sprintf("%s %s", route.Method, route.Path)
-		ir := internalRoute{
-			handler: route.Handler,
-			method:  route.Method,
-			path:    route.Path,
-		}
-		r.routes[k] = ir
-		baseRouter.routes[k] = ir
+		route.handler = route.HandleFunc
+		r.routes[k] = route
+		baseRouter.routes[k] = route
 	}
 	return r
 }
