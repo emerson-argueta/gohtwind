@@ -17,6 +17,16 @@ start_css_watcher() {
     ./frontend/bin/tailwindcss -i ./frontend/static/css/main.css -o ./frontend/static/css/output.css --watch
 }
 
+start_templ_watcher() {
+  # install gopls
+  go install golang.org/x/tools/gopls@latest
+  #install  templ
+  go install github.com/a-h/templ/cmd/templ@latest
+  # start templ
+  templ -watch
+}
+
+
 # Prepare Go modules
 echo "Running go mod tidy..."
 go mod tidy
@@ -28,11 +38,15 @@ GO_WATCHER_PID=$!
 start_css_watcher
 CSS_WATCHER_PID=$!
 
+start_templ_watcher
+TEMPL_WATCHER_PID=$!
+
 
 # Function to stop background processes when this script is stopped
 stop_watchers() {
     kill $GO_WATCHER_PID
     kill $CSS_WATCHER_PID
+    kill $TEMPL_WATCHER_PID
 }
 
 # Handle script termination
@@ -42,3 +56,5 @@ trap stop_watchers EXIT
 while true; do
     sleep 1
 done
+
+
